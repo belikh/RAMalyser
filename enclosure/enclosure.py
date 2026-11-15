@@ -224,6 +224,12 @@ def tray() -> Part:
     ux, _ = mech.USB_C
     uw, uh = mech.USB_C_SIZE
     body -= box(ux - uw / 2 - 0.5, OY - 0.1, TOP_Z - 0.3, uw + 1.0, WALL + GAP + 0.2, uh + 0.8)
+    # opening under the optional Wi-Fi module on the back of the board: the
+    # module is taller than the gap under the board, and its USB-C port and
+    # antenna are reached through here
+    assert mech.XIAO_HEIGHT <= BOSS_H + FLOOR, "Wi-Fi module would stand proud of the tray"
+    wx, wy, ww, wh = mech.XIAO_WINDOW
+    body -= box(wx, wy, -0.1, ww, wh, FLOOR + 0.2)
     # workstation-style rib bands along both sides
     for g in ribs_y(OX, 6.0, 2.4, BAY_WALL_Z - 1.6, CONSOLE_Y0 - 12.0, +1) + \
             ribs_y(OX + OUTER_W, 6.0, 2.4, BAY_WALL_Z - 1.6, CONSOLE_Y0 - 12.0, -1):

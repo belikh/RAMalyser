@@ -42,6 +42,7 @@ board's `hand-solder.csv`):
 | ZIF sockets, 16, 18 and 20 pin, 0.3 in | DIP cartridge XU1-XU5 | 3M Textool 2xx-33xx pattern |
 | 2 x 1x10 machined socket strip | DIP cartridge XU6 | ZIP-20 position |
 | 1x8 socket for the display, SWD and JTAG headers, buzzer | base | |
+| Optional: Seeed XIAO ESP32-C6 on two 1x7 pin headers | base J8, **back of the board** | Wi-Fi module. Antenna end towards the rear edge, USB-C end towards the front. It is about 6.7 mm tall and sits in the opening in the tray floor. Leave it off and the tester works over USB |
 
 ## Other hardware
 

@@ -54,3 +54,15 @@ KEY_ACTUATOR_HEIGHT = 5.0            # switch actuator top above the board
 LEDS = [(55.0 + 8.0 * i, 126.0) for i in range(3)]
 BUZZER = (10.0, 128.0)
 MAX_HEIGHT_UNDER_ADAPTER = 4.5       # tallest part allowed in the cartridge bay
+
+# ---- optional Wi-Fi module: Seeed XIAO (ESP32-C6 or any other XIAO), on the
+# BACK of the base board on plain 2.54 mm pin headers, antenna end at the
+# rear edge. Two rows of 7 holes, 15.24 mm apart. Coordinates are seen from
+# the top of the base board, so the rows are mirrored against the module's
+# own top view.
+XIAO_PIN1 = (112.38, 18.24)          # D0 (USB end of the module); D0..D6 run towards the rear
+XIAO_ROW_SPACING = 15.24             # D7..5V row sits this far to the right (+x)
+XIAO_BODY = (111.1, 0.1, 17.8, 21.0) # x, y, w, h of the module outline
+XIAO_ANTENNA = (113.8, 0.0, 12.4, 5.0)    # no copper on any layer here
+XIAO_HEIGHT = 6.7                    # module underside to its tallest part, on pin headers
+XIAO_WINDOW = (109.5, 0.5, 21.0, 48.0)    # opening in the tray floor: module plus a USB-C plug

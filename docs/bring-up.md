@@ -19,6 +19,9 @@ list. Items marked **must** gate everything after them.
   pattern is from Samtec's drawing for PCIE-164-02-x-D-RA) and that the
   cartridge sits 5.0 mm above the base when seated.
 - Order cartridges with hard-gold fingers and a bevelled tongue.
+- If you fit the Wi-Fi module: check J8 against a real XIAO before
+  soldering (the rows are mirrored because it mounts on the back), and that
+  it clears the tray opening.
 - Confirm the PD controller fitted (CH224A) matches the CH224K pinout the
   schematic assumes.
 - Confirm the fabricator's limits for 0.2 mm drills / 0.45 mm vias and

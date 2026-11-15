@@ -93,6 +93,25 @@ adjacent shorts are detected.
   the 4116 socket. A comparator holds +12 V and +5 V off until VBB is below
   about -4.2 V.
 
+## Wi-Fi module (optional)
+
+J8 on the back of the base board takes a Seeed XIAO module (the footprint is
+the same for every XIAO; the ESP32-C6 is the intended one). It is wired to
+the four RP2350 pins that were spare:
+
+| RP2350 | Net | XIAO pin |
+|---|---|---|
+| GPIO0 (UART0 TX) | `WIFI_RX` | D7 (RX) |
+| GPIO1 (UART0 RX) | `WIFI_TX` | D6 (TX) |
+| GPIO2 | `WIFI_IO0` | D0 |
+| GPIO3 | `WIFI_IO1` | D1 |
+
+The module's 5 V pin is fed from the 5 V rail through a Schottky diode, so
+plugging a cable into the module's own USB port cannot drive the rail. Its
+3.3 V pin is left open. There is no copper on any layer under the antenna.
+No firmware uses the module yet: the link is a UART plus two spare lines,
+and the protocol is still to be written.
+
 ## Firmware (`firmware/`)
 
 `rt-core` holds all test logic behind a small `Platform` trait and runs on a
