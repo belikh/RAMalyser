@@ -1,0 +1,2 @@
+PASS: retention loss detected (64 errors)
+tb_core.v:204: $finish called at 3136900000 (1ps)

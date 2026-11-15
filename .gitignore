@@ -1,0 +1,11 @@
+# build outputs and local environments
+**/target/
+**/__pycache__/
+*.pyc
+.venv/
+*.vcd
+*.fst
+/gateware/build/
+# design-system assets are fetched at build time, never committed
+/enclosure/.design/
+/enclosure/out/preview.*

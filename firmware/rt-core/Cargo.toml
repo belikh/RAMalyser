@@ -1,0 +1,12 @@
+[package]
+name = "rt-core"
+version = "0.1.0"
+edition = "2021"
+license = "PolyForm-Noncommercial-1.0.0"
+description = "Hardware-independent test logic for the RAMalyser memory tester (no_std)"
+
+[features]
+default = []
+sim = []          # software model of the timing engine + DRAM, for host tests
+
+[dependencies]

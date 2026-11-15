@@ -1,0 +1,27 @@
+[package]
+name = "rt-fw"
+version = "0.1.0"
+edition = "2021"
+license = "PolyForm-Noncommercial-1.0.0"
+
+[workspace]
+
+[dependencies]
+rt-core = { path = "../rt-core" }
+rt-hal = { path = "../rt-hal" }
+embassy-executor = { version = "0.7", features = ["arch-cortex-m", "executor-thread"] }
+embassy-rp = { version = "0.4", features = ["rp235xb", "time-driver", "critical-section-impl"] }
+embassy-time = "0.4"
+embassy-usb = "0.4"
+embassy-futures = "0.1"
+embedded-hal = "1"
+embedded-hal-bus = "0.3"
+cortex-m-rt = "0.7"
+panic-halt = "1"
+static_cell = "2"
+heapless = "0.8"
+
+[profile.release]
+opt-level = "s"
+lto = true
+debug = 2

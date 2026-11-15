@@ -1,0 +1,10 @@
+[package]
+name = "rt-hal"
+version = "0.1.0"
+edition = "2021"
+license = "PolyForm-Noncommercial-1.0.0"
+description = "RAMalyser base board drivers on embedded-hal traits (chip independent)"
+
+[dependencies]
+rt-core = { path = "../rt-core" }
+embedded-hal = "1"

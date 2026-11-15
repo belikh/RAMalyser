@@ -1,0 +1,6 @@
+[workspace]
+resolver = "2"
+members = ["rt-core", "rt-hal"]
+# rt-fw (the RP2350 binary) is a separate workspace: it needs the
+# thumbv8m.main-none-eabihf target and the embassy crates. See rt-fw/README.md.
+exclude = ["rt-fw"]

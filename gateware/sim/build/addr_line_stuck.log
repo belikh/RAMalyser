@@ -1,0 +1,4 @@
+fail_addr=4
+fail_bits=00000024
+PASS: errors=672 expect_fail=1
+tb_core.v:204: $finish called at 1057000000 (1ps)
