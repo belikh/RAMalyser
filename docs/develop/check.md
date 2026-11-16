@@ -60,7 +60,7 @@ The script tries placement seeds until one meets timing and prints `seed N meets
 
 ## Test the firmware logic
 
-**17 algorithm tests**
+**18 algorithm tests**
 
 ```sh
 cd firmware
@@ -70,8 +70,8 @@ cargo test --features sim
 **Output**
 
 ```text
-running 17 tests
-test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+running 18 tests
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
 The tests run `rt-core` against a software model of the engine and a DRAM. `rt-fw`, the RP2350 binary, has not been compiled yet.
@@ -112,7 +112,7 @@ node .jupiter-docs/packages/docs/bin/jupiter-docs.mjs build
 **Output of the check**
 
 ```text
-11 page(s) OK
+13 page(s) OK
 ```
 
 Commit `docs-src` and the regenerated `docs` together. `.jupiter-docs` and `dist` are in `.gitignore`.

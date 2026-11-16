@@ -186,3 +186,14 @@ fn console_runs_a_test_and_prints_a_report() {
     assert!(out.contains("ok") && out.contains("3077 ps"), "{out}");
     assert!(!execute(&mut p, "frobnicate", CAL, &mut out));
 }
+
+#[test]
+fn wiring_fault_report_has_no_verdict() {
+    let mut dut = simm72_4mb(70.0);
+    dut.faults.push(Fault::CtlStuck(3, false));
+    let r = run(Some(dut), &device::SIMM72);
+    assert!(!r.passed());
+    let text = format!("{r}");
+    assert!(text.contains("FAIL: MA3 stuck low"), "{text}");
+    assert!(!text.contains("PASS"), "{text}");
+}

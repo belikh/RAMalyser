@@ -89,6 +89,11 @@ impl fmt::Display for Report {
                     f, "FAIL: {} shorted to {}", CTL_NAMES[a as usize], CTL_NAMES[b as usize])?,
             }
         }
+        if self.wire_faults.iter().any(|w| w.is_some()) {
+            // the test stops at a wiring fault: there is no geometry or
+            // verdict to print, and "PASS" here would be wrong
+            return Ok(());
+        }
         if self.no_device {
             return writeln!(f, "No device found");
         }

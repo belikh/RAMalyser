@@ -48,6 +48,10 @@ The guides and references are at `docs.jupiter.au/ramalyser <https://docs.jupite
 
    * - Page
      - Contents
+   * - `Test a module <docs/guides/test-a-module.md>`_
+     - Fit a cartridge and a module, run a test and read the result
+   * - `Console commands <docs/reference/console.md>`_
+     - Every command, the report format and each message
    * - `Build a unit <docs/start/build.md>`_
      - Boards, fabrication limits, hand-fitted parts, enclosure and assembly
    * - `Bring up a new unit <docs/guides/bring-up.md>`_
@@ -147,7 +151,7 @@ The build needs Python 3, Icarus Verilog, OSS CAD Suite (yosys, nextpnr-ecp5, ec
    python3 spec/ramspec.py --check                      # bus and pin maps
    gateware/sim/run.sh                                  # 13 simulation scenarios
    gateware/build.sh                                    # bitstream, fails on timing
-   (cd firmware && cargo test --features sim)           # 17 algorithm tests
+   (cd firmware && cargo test --features sim)           # 18 algorithm tests
    (cd enclosure && uv venv && uv pip install -e . && .venv/bin/python enclosure.py --check)
 
 The enclosure build fetches the logo from the design-system release with ``gh``. If ``gh`` has no access, the build makes the case with a blank top.

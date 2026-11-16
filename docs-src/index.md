@@ -15,6 +15,8 @@ The boards pass electrical and design-rule checks and the logic passes in simula
 
 | You want to | Read |
 | --- | --- |
+| Test a memory module | [[guides/test-a-module]] |
+| Look up a command or a message | [[reference/console]] |
 | Order the boards, print the case and put a unit together | [[start/build]] |
 | Power a new unit for the first time | [[guides/bring-up]] |
 | Add Wi-Fi | [[guides/fit-wifi-module]] |

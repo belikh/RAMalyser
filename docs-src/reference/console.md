@@ -1,0 +1,96 @@
+---
+title: Console commands
+summary: Every command of the USB serial console, the lines of a test report and each message the tester prints.
+order: 15
+icon: terminal
+audience: users
+status: draft
+---
+
+The console is a USB serial port named `RAMalyser console`. Each command is one line. Numbers are decimal, or hexadecimal with `0x`.
+
+## Commands
+
+| Command | Argument | Result |
+| --- | --- | --- |
+| `list` | None | The socket profiles with their numbers |
+| `basic N` | Profile number | Quick test: wiring, identification, access time, every cell written and verified twice |
+| `full N` | Profile number | Long test: the quick test, then March C-, checkerboard, address-in-data, supply margins, voltage bounce and retention |
+| `id` | None | The engine ID and the [[term:Tick]] period |
+| `peek REG` | Register address below `0x80` | The 32-bit value of an engine register |
+| `poke REG VALUE` | Register address and value | Writes an engine register and prints `ok` |
+
+`firmware/rt-core/src/regs.rs` lists the registers. `poke` can drive the bus directly, so use it only without a module fitted.
+
+## Profiles
+
+| Number | Profile | Cartridge |
+| --- | --- | --- |
+| 0 | 72-pin SIMM | SIMM |
+| 1 | 30-pin SIMM | SIMM |
+| 2 | 4116 (16K x1), with the -5 V and +12 V rails | DIP and ZIP |
+| 3 | 4164 / 41256 | DIP and ZIP |
+| 4 | 4416 / 4464 | DIP and ZIP |
+| 5 | 411000 (1M x1) | DIP and ZIP |
+| 6 | 44256 / 514400 | DIP and ZIP |
+
+## Report
+
+```text title="A passing report"
+72-pin SIMM
+4 MB  1024K x36  (10x10 addr)
+EDO  60 ns  120 mA
+PASS
+```
+
+| Line | Field | Meaning |
+| --- | --- | --- |
+| 1 | `72-pin SIMM` | The profile |
+| 2 | `4 MB` | Capacity. Below 1 MB it is in Kbit |
+| 2 | `1024K x36` | Words and data width. 36 means parity, 32 means no parity |
+| 2 | `(10x10 addr)` | Row and column address bits |
+| 3 | `FPM` or `EDO` | The detected mode |
+| 3 | `60 ns` | Access time from RAS |
+| 3 | `retention >= 512 ms` | Longest pause without refresh that read back correctly. Long test only |
+| 3 | `120 mA` | Supply current |
+| 4 | `PASS` or `FAIL in ...` | The verdict |
+
+## Messages
+
+| Message | Cause | Fix |
+| --- | --- | --- |
+| `unknown command: frob` | The first word is not a command | Use a command from the table |
+| `usage: basic <profile number> (see `list`)` | The profile number is missing or out of range | Type `list`, then use a number from 0 to 6 |
+| `usage: peek <reg>` | The register address is missing or `0x80` or above | Give an address below `0x80` |
+| `usage: poke <reg> <value>` | The address or the value is missing | Give both |
+| `engine 0x52414d31 ok  tick 3077 ps` | Reply to `id` on a working unit | None needed |
+| `engine ... UNEXPECTED` | The FPGA did not configure, or the SPI link is broken | Power-cycle the tester. See [[guides/bring-up]] |
+| `No device found` | No memory answers | Reseat the module and check the profile |
+| `FAIL: supply fault (N mA)` | Over-current, or the DUT rail did not come up | Remove the module and check its orientation |
+| `FAIL: NAME stuck low`, `FAIL: NAME stuck high` | A control line does not move | Check the cartridge for a bent pin or a bridge |
+| `FAIL: NAME shorted to NAME` | Two control lines follow each other | Check the cartridge for a bridge |
+| `FAIL in PHASE: N errors, first at ADDR, bad bits MASK, read DATA` | Memory cells read back wrong | The module is faulty |
+
+Control line names are `MA0` to `MA11`, `WE0`, `WE1`, `OE0`, `OE1`, `RAS0` to `RAS3` and `CAS0` to `CAS3`.
+
+## Phases
+
+`PHASE` in a failure line is one of these.
+
+| Phase | Test |
+| --- | --- |
+| `Power` | The DUT supply did not switch on |
+| `Wiring` | Control lines read back through the sense buffers |
+| `Detect` | Size, width and mode |
+| `Pattern` | Every cell written and verified |
+| `March` | March C- |
+| `Checkerboard` | Alternating cells |
+| `AddressInData` | Each word holds its own address |
+| `Retention` | A pause without refresh |
+| `VoltageLow`, `VoltageHigh` | The tests at the supply margins |
+| `Bounce` | Written at the low supply limit and read at the high limit, then the reverse |
+
+:::see-also
+- [[guides/test-a-module]]
+- [[reference/memory]]
+:::
