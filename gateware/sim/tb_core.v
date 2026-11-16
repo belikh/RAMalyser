@@ -20,13 +20,32 @@ module tb_core;
     parameter real T_DRV = 4.0;     // adapter drive buffer delay
     parameter real T_RX  = 5.0;     // adapter receive buffer delay
     parameter EXPECT_FAIL = 0;      // scenario expects the march to report errors
-    parameter MODE = 0;             // 0 march, 1 speed sweep, 2 EDO detect, 3 retention
+    parameter MODE = 0;             // 0 march, 1 speed sweep, 2 EDO detect, 3 retention, 4 abort
+    parameter PATMODES = 3;         // march: how many of the three pattern modes to run
+    parameter SWEEP_FROM = 8;       // speed sweep: first strobe tick tried
+    parameter real SPI_HALF = 50.0; // half an SCK period, ns
 
+`ifdef GATE
+    parameter real TICK = 1000.0 / 325.0;   // 162.5 MHz from the PLL: tick = 3.077 ns
+`else
+    parameter real TICK = 2.5;              // 200 MHz bench clock
     reg clk = 0, rst = 1;
-    always #2.5 clk = ~clk;         // 200 MHz, tick = 2.5 ns
+    always #2.5 clk = ~clk;
+`endif
 
     reg sck = 0, cs_n = 1, mosi = 0;
     wire miso;
+`ifdef GATE
+    // The synthesised top level: PLL, reset, SPI, core and the 116 pad cells
+    // as ECP5 primitives (run_gate.sh).
+    wire [`N_IO-1:0] pad;
+    reg  clk25 = 0;
+    always #20 clk25 = ~clk25;
+    wire pll_lock;
+    top_ecp5 u_top (.clk25(clk25), .spi_sck(sck), .spi_cs_n(cs_n), .spi_mosi(mosi),
+                    .spi_miso(miso), .dut_pg(1'b1), .busy(), .pll_lock(pll_lock), .io(pad));
+    genvar g;
+`else
     wire        reg_we;
     wire [6:0]  reg_addr;
     wire [31:0] reg_wdata, reg_rdata;
@@ -47,6 +66,8 @@ module tb_core;
                      .q1(q1[g]), .fine(fine), .fine_load(1'b0), .fine_move(1'b0),
                      .pad(pad[g]));
     end endgenerate
+
+`endif
 
     // ---- adapter model: drive buffers, receive buffers, weak pull-ups ----
     wire [DW-1:0] dq_dut;                 // socket-side data bus
@@ -84,9 +105,9 @@ module tb_core;
             f = {wr, a, wdata}; rd = 0;
             cs_n = 0; #100;
             for (n = 39; n >= 0; n = n - 1) begin
-                mosi = f[n]; #50; sck = 1;
+                mosi = f[n]; #(SPI_HALF); sck = 1;
                 if (n < 32) rd[n] = miso;
-                #50; sck = 0;
+                #(SPI_HALF); sck = 0;
             end
             #100; cs_n = 1; #100;
         end
@@ -134,7 +155,11 @@ module tb_core;
     real    meas;
     initial begin
         total_err = 0;
+`ifdef GATE
+        wait (pll_lock); #500;
+`else
         #100 rst = 0; #100;
+`endif
         rdreg(7'h00);
         if (rd !== 32'h52414D31) begin $display("FAIL: bad ID %h", rd); $finish; end
         wr(7'h03, {24'd0, AW[3:0], AW[3:0]});
@@ -148,7 +173,9 @@ module tb_core;
 
         case (MODE)
         0: begin
-            march_c(2'd0); march_c(2'd1); march_c(2'd2);
+            march_c(2'd0);
+            if (PATMODES > 1) march_c(2'd1);
+            if (PATMODES > 2) march_c(2'd2);
             rdreg(7'h13); $display("fail_addr=%0d", rd);
             rdreg(7'h14); $display("fail_bits=%h", rd);
             if ((total_err != 0) == (EXPECT_FAIL != 0))
@@ -160,17 +187,17 @@ module tb_core;
             // write once, then move the strobe earlier until reads fail
             element(0, 2'd2, 1, {10'd0, W0});
             first_pass = -1;
-            for (s = 8; s <= 46 && first_pass < 0; s = s + 1) begin
+            for (s = SWEEP_FROM; s <= 46 && first_pass < 0; s = s + 1) begin
                 set_timing(s[7:0], 7'd0, 8'd56);
                 element(0, 2'd2, 1, {10'd0, R0});
                 rdreg(7'h12);
                 if (rd == 0) first_pass = s;
             end
             // strobe tick minus RAS tick, minus the calibrated buffer delays
-            meas = (first_pass - 2) * 2.5 - T_DRV - T_RX;
+            meas = (first_pass - 2) * TICK - T_DRV - T_RX;
             $display("first passing strobe tick=%0d  measured tRAC=%0.1f ns  model=%0.1f ns",
                      first_pass, meas, T_RAC);
-            if (first_pass > 0 && meas >= T_RAC - 0.01 && meas < T_RAC + 2.5 + 0.01)
+            if (first_pass > 0 && meas >= T_RAC - 0.01 && meas < T_RAC + TICK + 0.01)
                 $display("PASS: speed within one tick");
             else
                 $display("FAIL: speed measurement out of range");
@@ -199,6 +226,25 @@ module tb_core;
             rdreg(7'h12);
             if (rd != 0) $display("PASS: retention loss detected (%0d errors)", rd);
             else $display("FAIL: retention loss not detected");
+        end
+        4: begin
+            // abort: a six-operation element is cut short part of the way
+            // through, and the engine then takes the next start
+            wr(7'h0A, {12'd0, {R0, W0, R1, W1, R0, W0}, 2'b00, 2'd0, 1'b0, 3'd6});
+            wr(7'h01, 32'h15);
+            #10000;
+            rdreg(7'h02);
+            first_pass = 1;                         // used here as "no fault so far"
+            if (!rd[0]) begin $display("FAIL: element ended before the abort"); first_pass = 0; end
+            wr(7'h01, 32'h16);                      // abort | rfsh_en | eng_en
+            rdreg(7'h02);
+            if (rd[0] || !rd[2]) begin
+                $display("FAIL: abort ignored, status=%h", rd[3:0]); first_pass = 0;
+            end
+            element(0, 2'd0, 1, {10'd0, W0});
+            rdreg(7'h02);
+            if (rd[0] || !rd[2]) $display("FAIL: no element after the abort, status=%h", rd[3:0]);
+            else if (first_pass) $display("PASS: abort taken, next element ran");
         end
         endcase
         $finish;

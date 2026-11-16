@@ -1,0 +1,34 @@
+* 4. Cartridge pulled while the 4116 is powered: every slot contact opens
+*    at 30 ms. The cartridge keeps its own capacitors: 10u on +3V3, 47u on
+*    VDUT. ASSUMED loads on them: 10 mA on +3V3 (buffers, EEPROM), the
+*    chip's ICC on VDUT.
+.include dip.inc
+* The slot's +5 V is an ideal source here: the inductance of the path only
+* matters at switch-on (deck 2).
+Vs5   s5 0 5
+Rs5   s5 slot5x 0.1
+Cst5  slot5 0 1n                             ; ASSUMED stray capacitance of the open +5 V contact
+Rst5  slot5 0 10meg
+Cstg  q5g 0 100p
+.param i33=10m
+Vs33  s33 0 {v33v}
+Vsdut sdut 0 5
+Vsaen saen 0 PWL(0 0 1m 0 1.001m 3.3)
+Vt    pull 0 PWL(0 1 30m 1 30.0001m 0)
+S33   s33 v33 pull 0 SWON
+Sdut  sdut vdut pull 0 SWON
+S5    slot5x slot5y pull 0 SWON
+Vx    slot5y slot5 0
+Saen  saen auxen pull 0 SWON
+C33   v33 0 10u
+R33   v33 0 {3.3/i33}
+Cdut  vdut 0 47u
+.options method=gear reltol=5e-3 abstol=10n vntol=50u rshunt=1e10
+.control
+tran 5u 100m 0 20u
+meas tran t_vdd_off   when v(vdd)=0.5 fall=last
+meas tran t_vcc_off   when v(vcc)=0.5 fall=last
+meas tran vbb_at_vdd  find v(vbb) when v(vdd)=0.5 fall=last
+meas tran vbb_at_vcc  find v(vbb) when v(vcc)=0.5 fall=last
+.endc
+.end

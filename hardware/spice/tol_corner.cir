@@ -1,0 +1,62 @@
+* Worst-case corners of tol.inc: every deviation at -1 or +1, all 8192
+* combinations of the 13 parts. Same output line as tol_mc.cir.
+.include tol.inc
+.control
+setplot const
+let d = vector(13)
+let i = 0
+while i < 8192
+  let k = 0
+  while k < 13
+    let d[k] = 2 * (floor(i / 2^k) - 2 * floor(i / 2^(k + 1))) - 1
+    let k = k + 1
+  end
+  * ---- one unit: set the parts from d, solve, print
+  * d: R1 R2 R3 reference 3.3V DAC-offset DAC-gain | Rd1 Rd2 Rd3 Rr1 Rr2 offset
+  let x = 100k * (1 + tol_r * d[0])
+  alter R1 = $&x
+  let x = 20k * (1 + tol_r * d[1])
+  alter R2 = $&x
+  let x = 100k * (1 + tol_r * d[2])
+  alter R3 = $&x
+  let x = 0.8 * (1 + tol_ref * d[3])
+  alter Vref dc = $&x
+  let x = 3.3 * (1 + tol_33 * d[4])
+  alter V33 dc = $&x
+  let x = dac_off * d[5]
+  alter Voff dc = $&x
+  let x = 1 + dac_gain * d[6]
+  alter Vgain dc = $&x
+  let x = 100k * (1 + tol_r * d[7])
+  alter Rd1 = $&x
+  let x = 75k * (1 + tol_r * d[8])
+  alter Rd2 = $&x
+  let x = 82k * (1 + tol_r * d[9])
+  alter Rd3 = $&x
+  let x = 10k * (1 + tol_r * d[10])
+  alter Rr1 = $&x
+  let x = 10k * (1 + tol_r * d[11])
+  alter Rr2 = $&x
+  let x = cmp_vos * d[12]
+  alter Vos dc = $&x
+  * rt-hal's dac_code_for(): 5600 mV at code 0, 3300 mV reference, 4095 steps.
+  * Codes for 5.6 (the top), 5.5, 5.0, 3.6, 3.3 and 2.6 V.
+  set line = "U"
+  foreach c 0 124 744 2481 2854 3722
+    let vc = $c / 4096
+    alter Vcode dc = $&vc
+    op
+    set line = "$line $&v(rail)"
+  end
+  set line = "$line $&v(trip)"
+  alter Rst = 1m
+  op
+  set line = "$line $&v(trip)"
+  alter Rst = 1G
+  echo $line
+  destroy all
+  setplot const
+  let i = i + 1
+end
+.endc
+.end

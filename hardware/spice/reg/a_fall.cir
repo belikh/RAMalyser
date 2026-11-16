@@ -1,0 +1,20 @@
+* How fast the rail falls with nothing connected: the regulator does not
+* sink, so only the resistors on the rail discharge its capacitors.
+* 2 x 22 uF (derated by kc), feedback network to the DAC at its new value,
+* over-voltage divider with a 5 V cartridge fitted (100k + 75k || 82k),
+* INA219 bus input 320k (ASSUMED from its datasheet figure).
+.include run.param
+Co    out 0 {44u*kc} ic=5.0
+Rf1   out fb 100k
+Rf2   fb 0 20k
+Rf3   fb dac 100k
+Vdac  dac 0 2.3
+Rd1   out div 100k
+Rd2   div 0 39.2k
+Rina  out 0 320k
+.control
+tran 1m 6 uic
+meas tran t_385 when v(out)=3.85 fall=1
+meas tran t_363 when v(out)=3.63 fall=1
+.endc
+.end

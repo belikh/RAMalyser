@@ -1,0 +1,18 @@
+* 5. The -5 V supply fails. (a) It never starts: +12 V and VCC must stay
+*    off. (b) It stops at 30 ms with the chip powered (reservoir shorted
+*    to nothing, pump simply stops): how far VBB sags before +12 V is gone.
+.include dip.inc
+.include slot.inc
+.param cpon=0
+V33   v33 0 {v33v}
+Vdut  vdut 0 5
+Vx    slot5x slot5 0
+Vaen  auxen 0 PWL(0 0 1m 0 1.001m 3.3)
+.control
+tran 5u 20m 0 20u
+meas tran a_vdd_max   max v(vdd) from=1m to=20m
+meas tran a_vcc_max   max v(vcc) from=1m to=20m
+meas tran a_vbb_end   find v(vbb) at=19m
+meas tran a_v12raw    find v(v12raw) at=19m
+.endc
+.end

@@ -1,0 +1,15 @@
+* 5b. The charge pump stops at 30 ms with the chip powered.
+.include dip.inc
+.include slot.inc
+V33   v33 0 {v33v}
+Vdut  vdut 0 5
+Vx    slot5x slot5 0
+Vaen  auxen 0 PWL(0 0 1m 0 1.001m 3.3)
+Vkill cpgo 0 PWL(0 1 30m 1 30.001m 0)
+.control
+tran 5u 150m 0 20u
+meas tran t_vdd_off   when v(vdd)=0.5 fall=last
+meas tran vbb_at_vdd  find v(vbb) when v(vdd)=0.5 fall=last
+meas tran vbb_at_vcc  find v(vbb) when v(vcc)=0.5 fall=last
+.endc
+.end

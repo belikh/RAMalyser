@@ -22,7 +22,7 @@ RAMalyser tests the memory used in machines of the 1970s to 1990s. It is a new d
      <tr align="left"><th>Warning</th></tr>
      <tr><td>
 
-Revision A has never been built. The boards pass electrical and design-rule checks and the logic passes in simulation. No hardware exists and nothing has been measured. Read `Bring up a new unit <docs/guides/bring-up.md>`_ before you order anything.
+Revision A has never been built. The boards pass electrical and design-rule checks and the logic passes in simulation. The analogue simulations report design faults that are not fixed yet. No hardware exists and nothing has been measured. Read `Bring up a new unit <docs/guides/bring-up.md>`_ before you order anything.
 
 .. raw:: html
 
@@ -131,7 +131,7 @@ Contents
    * - |file-l| |file-d| ``spec/``
      - The electrical and mechanical interface as data: the base-to-adapter bus, socket pin maps, FPGA ball assignment and enclosure dimensions
    * - |cpu-l| |cpu-d| ``gateware/``
-     - ECP5 timing engine in Verilog, a simulation suite with a fault-injecting DRAM model, and the bitstream build
+     - ECP5 timing engine in Verilog, a simulation suite with a fault-injecting DRAM model, formal proofs, and the bitstream build
    * - |rust-l| |rust-d| ``firmware/``
      - ``rt-core`` (test logic, console and front-panel screens, tested on a PC), ``rt-hal`` (board drivers), ``rt-cosim`` (the firmware running against the real gateware in simulation) and ``rt-fw`` (RP2350 binary, compiles, not yet run)
    * - |code-l| |code-d| ``web/``
@@ -143,7 +143,7 @@ Contents
    * - |topology-l| |topology-d| ``hardware/schematics/``
      - Schematic PDFs of the base unit and the cartridges
    * - |topology-l| |topology-d| ``hardware/spice/``
-     - ngspice simulation of the DUT supply
+     - ngspice simulations of the supplies, the regulators and the bus lines
    * - |book-l| |book-d| ``docs/``
      - Generated documentation. The source is ``docs-src/``
 
@@ -165,7 +165,8 @@ The build needs Python 3, Icarus Verilog, OSS CAD Suite (yosys, nextpnr-ecp5, ec
 .. code-block:: sh
 
    python3 spec/ramspec.py --check                      # bus and pin maps
-   gateware/sim/run.sh                                  # 13 simulation scenarios
+   gateware/sim/run.sh                                  # 14 simulation scenarios
+   gateware/formal/run.sh                               # 47 properties proved
    gateware/build.sh                                    # bitstream, fails on timing
    (cd firmware && cargo test --features sim)           # 32 tests of the firmware logic
    (cd firmware/rt-cosim && cargo test)                 # 17 scenarios: firmware on the real gateware

@@ -50,4 +50,8 @@ module spi_regs (
             end
         end
     end
+
+`ifdef FORMAL
+`include "spi_regs_props.vh"
+`endif
 endmodule

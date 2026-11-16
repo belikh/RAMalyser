@@ -1,0 +1,18 @@
+* Set-point steps through the DAC at a 20 mA load:
+* 3.3 V -> 5.0 V at 1 ms, 5.0 V -> 5.5 V at 5 ms, 5.5 V -> 3.3 V at 9 ms.
+* The DAC output moves in 10 us (MCP4725 settling 6 us).
+.include rail.inc
+Vdac  dac 0 PWL(0 2.3 1m 2.3 1.01m 0.6 5m 0.6 5.01m 0.1 9m 0.1 9.01m 2.3)
+Il    out 0 20m
+.control
+tran 50n 22m 0 50n uic
+meas tran t_up   when v(out)=4.95 rise=1
+meas tran v_up   max v(out) from=1m to=5m
+meas tran v_55   max v(out) from=5m to=9m
+meas tran t_55   when v(out)=5.45 rise=1
+meas tran t_dn   when v(out)=3.63 fall=1
+meas tran t_dn2  when v(out)=3.35 fall=1
+meas tran v_end  avg v(out) from=21m to=22m
+meas tran ipk    max i(L1) from=1m to=9m
+.endc
+.end

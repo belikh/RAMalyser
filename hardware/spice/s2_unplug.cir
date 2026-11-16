@@ -1,0 +1,27 @@
+* 2. A 5 V cartridge pulled out with the rail on at 5 V and 1 A.
+*    The contact, the load and the strap all go at 80 ms. Nothing in the
+*    firmware reacts: it does not read ADP_PRESENT_N.
+.param strap5=1
+.include rail_seq.inc
+.include seq.inc
+Vbus vbus 0 PWL(0 0 0.1m 9)
+Vplug plug 0 PWL(0 1 80m 1 80.1m 0)
+Vdacf dacf 0 {0.6/3.3}
+Rload vcart 0 5
+Vfen fw_en 0 PWL(0 0 20m 0 20.001m 3.3)
+Vfsw fw_sw 0 PWL(0 0 30m 0 30.001m 3.3)
+Vfdis fw_dis 0 0
+.control
+tran 5u 400m
+meas tran vdut_on    find v(vdut) at=79m
+meas tran i_on       find v(ish) at=79m
+meas tran t_trip     when v(ovpn)=1.5 fall=1 td=80m
+meas tran t_open     when v(vsg)=0.9 fall=1 td=80m
+meas tran vdut_max   max v(vdut) from=80m to=400m
+meas tran vraw_max   max v(vraw) from=80m to=400m
+meas tran vdut_end   find v(vdut) at=399m
+meas tran vraw_end   find v(vraw) at=399m
+meas tran ovpn_end   find v(ovpn) at=399m
+meas tran t_retrip   when v(ovpn)=1.5 rise=1 td=80.2m
+.endc
+.end

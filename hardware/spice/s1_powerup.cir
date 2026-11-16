@@ -1,0 +1,33 @@
+* 1. Power-up with no cartridge. VBUS comes up at 5 V; the PD controller
+*    gets 9 V 60 ms later (ASSUMED). The firmware starts, runs rail_off()
+*    (discharge on for 50 ms) and then leaves the rail alone.
+*    The DUT rail must stay off the whole time.
+.param strap5=1
+.include rail_seq.inc
+.include seq.inc
+Vbus vbus 0 PWL(0 0 1m 0 2m 5 60m 5 65m 9)
+Vplug plug 0 0
+Vdacf dacf 0 0.5
+* firmware: Board::new() -> rail_off(): everything low, discharge high for 50 ms.
+* The firmware starts when the model's mcu node rises (about 9 ms); the
+* sources below are what it drives from then on.
+Vfen fw_en 0 0
+Vfsw fw_sw 0 0
+Vfdis fw_dis 0 PWL(0 3.3 62m 3.3 62.001m 0)
+.control
+tran 5u 150m
+meas tran vdut_max  max v(vdut)
+meas tran vraw_max  max v(vraw)
+meas tran ovpn_max  max v(ovpn)
+meas tran en_max    max v(buck_en)
+meas tran dis_max_pre max v(dis) from=0 to=8m
+meas tran vsg_max   max v(vsg)
+meas tran t_33      when v(v33)=3.135 rise=1
+meas tran t_mcu     when v(mcu)=0.5 rise=1
+meas tran v5_at_5   find v(v5) at=59m
+meas tran v5_at_9   find v(v5) at=149m
+meas tran v33_end   find v(v33) at=149m
+meas tran v11_end   find v(v11) at=149m
+meas tran v25_end   find v(v25) at=149m
+.endc
+.end

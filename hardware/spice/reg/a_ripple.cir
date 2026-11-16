@@ -1,0 +1,20 @@
+* Steady state: ripple, mean and inductor current at one set point and load.
+* p1..p4 are the peaks of four cycles in a row: they differ if the current
+* loop oscillates at half the switching frequency.
+* rail.inc is dut.inc or core.inc; run.sh fills in the @...@ times.
+.include rail.inc
+Vdac  dac 0 {5.6 - vset}
+Il    out 0 {iload}
+.control
+tran 50n @TEND@ 0 50n uic
+meas tran vavg avg v(out) from=@T0@ to=@TEND@
+meas tran vmax max v(out) from=@T0@ to=@TEND@
+meas tran vmin min v(out) from=@T0@ to=@TEND@
+meas tran ipk max i(L1) from=@T0@ to=@TEND@
+meas tran ivl min i(L1) from=@T0@ to=@TEND@
+meas tran p1 max i(L1) from=@P1@ to=@P2@
+meas tran p2 max i(L1) from=@P2@ to=@P3@
+meas tran p3 max i(L1) from=@P3@ to=@P4@
+meas tran p4 max i(L1) from=@P4@ to=@P5@
+.endc
+.end

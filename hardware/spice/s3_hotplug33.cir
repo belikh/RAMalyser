@@ -1,0 +1,31 @@
+* 3. A 3.3 V cartridge tested straight after a 5 V one. The 5 V test ends
+*    at 80 ms with rail_off() (50 ms of discharge). The 3.3 V cartridge is
+*    in at 135 ms; the firmware sets 3.3 V, enables the regulator at 140 ms
+*    and reads the rail 10 ms later. Here the switch is requested at 150 ms
+*    whatever that reading says, to see what the comparator does on its own.
+.param strap5=0
+.include rail_seq.inc
+.include seq.inc
+Vbus vbus 0 PWL(0 0 0.1m 9)
+* the strap: grounded by the 5 V cartridge until 132 ms, open afterwards
+Vplug plug 0 1
+Vst tstrap 0 PWL(0 1 132m 1 132.01m 0)
+Sst strap 0 tstrap 0 SWSTR
+Vdacf dacf 0 PWL(0 {0.6/3.3} 135m {0.6/3.3} 135.01m {2.3/3.3})
+Vfen fw_en 0 PWL(0 0 20m 0 20.001m 3.3 80m 3.3 80.001m 0 140m 0 140.001m 3.3)
+Vfsw fw_sw 0 PWL(0 0 30m 0 30.001m 3.3 80m 3.3 80.001m 0 150m 0 150.001m 3.3)
+Vfdis fw_dis 0 PWL(0 0 80m 0 80.001m 3.3 130m 3.3 130.001m 0)
+.control
+tran 20u 2.5
+meas tran vraw_5v     find v(vraw) at=79m
+meas tran vcart_130   find v(vcart) at=130m
+meas tran vraw_150    find v(vraw) at=150m
+meas tran ovpn_151    find v(ovpn) at=151m
+meas tran vcart_151   find v(vcart) at=151m
+meas tran t_release   when v(ovpn)=1.5 rise=1 td=150.1m
+meas tran t_in_window when v(vraw)=3.465 fall=1 td=140m
+meas tran vcart_max   max v(vcart) from=132m to=2.5
+meas tran vraw_at_rel find v(vraw) when v(ovpn)=1.5 rise=1 td=150.1m
+meas tran vcart_end   find v(vcart) at=2.49
+.endc
+.end

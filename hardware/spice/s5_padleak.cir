@@ -1,0 +1,25 @@
+* 5. The switch request while the firmware holds it low, with the leakage
+*    of an RP2350 input pad on OVP_N (GPIO39 is an input with no pull).
+*    Erratum RP2350-E9 on the A2 stepping: a pad with its input enabled
+*    sources current while it sits between the logic levels. ASSUMED 120 uA,
+*    from memory of the erratum; later steppings do not have it.
+*    The regulator is on (the 10 ms before the switch request), 5 V set.
+.param strap5=1
+.include rail_seq.inc
+.include seq.inc
+.param ileak=120u
+Vbus vbus 0 PWL(0 0 0.1m 9)
+Vplug plug 0 1
+Vdacf dacf 0 {0.6/3.3}
+Rload vcart 0 5
+Vfen fw_en 0 PWL(0 0 20m 0 20.001m 3.3)
+Vfsw fw_sw 0 0
+Vfdis fw_dis 0 0
+Bleak 0 ovpn I = (v(mcu) > 0.5 && v(ovpn) < 2.0 ? {ileak} : 0)
+.control
+tran 5u 60m
+meas tran ovpn_lvl find v(ovpn) at=59m
+meas tran vraw_lvl find v(vraw) at=59m
+meas tran vcart_lvl find v(vcart) at=59m
+.endc
+.end

@@ -1,0 +1,13 @@
+* 0. Cartridge in the slot, auxiliary supplies off (any other chip type).
+*    What sits on the 4116 socket's VBB pin.
+.include dip.inc
+.param chip=0
+V33   v33 0 {v33v}
+Vdut  vdut 0 5
+V5    slot5 0 5
+Vaen  auxen 0 0
+.control
+op
+print v(vbb) v(vdd) v(vcc) v(p5sw)
+.endc
+.end

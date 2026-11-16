@@ -1,0 +1,22 @@
+* 1. The interlock: VBB forced, charge pump out of the picture. Where does
+*    AUX_OK change, and what do the +12 V and VCC switches do either side.
+.include dip.inc
+.param cpon=0
+.param chip=0
+V33   v33 0 {v33v}
+Vdut  vdut 0 5
+V5    slot5 0 5
+Vx    slot5x slot5 0
+Vaen  auxen 0 3.3
+Vf    vbb 0 0
+.control
+dc Vf 0 -6 -0.002
+meas dc trip when v(auxok)=1.65 rise=1
+meas dc vdiv_m5 find v(vdiv) at=-5
+meas dc vdiv_m525 find v(vdiv) at=-5.25
+meas dc vdd_m4 find v(vdd) at=-4.0
+meas dc vcc_m4 find v(vcc) at=-4.0
+meas dc vdd_0 find v(vdd) at=0
+meas dc vcc_0 find v(vcc) at=0
+.endc
+.end

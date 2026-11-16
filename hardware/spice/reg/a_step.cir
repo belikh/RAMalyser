@@ -1,0 +1,17 @@
+* Load step @I0@ A -> @I1@ A -> @I0@ A, edges of 1 us
+.include rail.inc
+Vdac  dac 0 {5.6 - vset}
+Il    out 0 PWL(0 @I0@ 1.5m @I0@ 1.501m @I1@ 3m @I1@ 3.001m @I0@)
+.control
+tran 50n 4.5m 0 50n uic
+meas tran vpre avg v(out) from=0.9m to=1.5m
+meas tran vdip min v(out) from=1.5m to=3m
+meas tran vend avg v(out) from=2.8m to=3m
+meas tran vpk  max v(out) from=3m to=4.5m
+meas tran w1 avg v(out) from=1.55m to=1.6m
+meas tran w2 avg v(out) from=1.6m to=1.7m
+meas tran w3 avg v(out) from=1.7m to=1.8m
+meas tran w4 avg v(out) from=1.9m to=2.0m
+meas tran ipk max i(L1) from=1.5m to=3m
+.endc
+.end

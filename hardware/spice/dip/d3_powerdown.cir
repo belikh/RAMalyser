@@ -1,0 +1,18 @@
+* 3. Power-down by the firmware: AUX_EN dropped at 30 ms, +3V3 and VDUT stay.
+.include dip.inc
+.include slot.inc
+V33   v33 0 {v33v}
+Vdut  vdut 0 5
+Vx    slot5x slot5 0
+Vaen  auxen 0 PWL(0 0 1m 0 1.001m 3.3 30m 3.3 30.001m 0)
+.control
+tran 20u 70m 0 50u
+meas tran t_ok_off    when v(auxok)=1.65 fall=last
+meas tran t_vdd_off   when v(vdd)=0.5 fall=last
+meas tran t_vcc_off   when v(vcc)=0.5 fall=last
+meas tran vbb_at_vdd  find v(vbb) when v(vdd)=0.5 fall=last
+meas tran vbb_at_vcc  find v(vbb) when v(vcc)=0.5 fall=last
+meas tran p5_at_ok    find v(p5sw) when v(auxok)=1.65 fall=last
+meas tran vbb_late    find v(vbb) at=69m
+.endc
+.end

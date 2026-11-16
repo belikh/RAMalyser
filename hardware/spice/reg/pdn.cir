@@ -1,0 +1,114 @@
+* Impedance of the FPGA supplies seen at the balls of the ECP5, 1 kHz to 500 MHz.
+*
+* Capacitors and places are those of pcb/boards/base.py (function fpga and
+* the power sheet). Track resistance and length from the balls to each
+* part were measured on the routed board (shortest copper path; inner
+* layers taken as 0.5 oz, ASSUMED). 1.1 V and 2.5 V have no plane: they are
+* tracks. 3.3 V is a plane.
+*
+* ASSUMED throughout: track inductance 0.35 nH/mm; 100 nF 0402 X7R: 30 mOhm,
+* 0.4 nH, plus 1.0 nH for its vias and pads; 10 uF and 22 uF 0805: 5 mOhm,
+* 0.6 nH, plus 0.8 nH; a regulator seen from its output capacitors as
+* 10 mOhm in series with the inductance that crosses those capacitors at
+* its loop bandwidth (30 kHz for the 500 kHz part, 50 kHz for the 1.1 MHz
+* part and for the linear regulator), with a resistor across that inductance
+* equal to its reactance at the bandwidth, which stands for a loop with
+* good phase margin. The makers' capacitor models were not
+* fetched. The package and die of the FPGA are left out, so the result
+* above about 100 MHz is not the impedance the die sees.
+.param lmm=0.35n
+
+* ---- 1.1 V core. Two groups of three balls, 22 mOhm and 6 mm apart.
+I1a 0 g1 AC 0.5
+I1b 0 l1 AC 0.5
+Rgl g1 gl 22m
+Lgl gl l1 {6*lmm}
+.subckt cap a r=30m c=100n l=1.4n rt=5m lt=1n
+Rt a 1 {rt}
+Lt 1 2 {lt}
+Rs 2 3 {r}
+Ls 3 4 {l}
+Cs 4 0 {c}
+.ends
+Xc1  g1 cap rt=5m  lt={1*lmm}
+Xc2  g1 cap rt=18m lt={4*lmm}
+Xc6  g1 cap rt=22m lt={6*lmm}
+Xc10 g1 cap rt=24m lt={7*lmm}
+Xc5  g1 cap rt=29m lt={9*lmm}
+Xc13 g1 cap rt=91m lt={53*lmm}
+Xc17 g1 cap rt=88m lt={52*lmm} r=5m c=10u l=1.4n
+* regulator end: 196 mOhm and 84 mm of track away, 2 x 22 uF (90 % left at 1.1 V)
+Rtr1 g1 t1 196m
+Ltr1 t1 r1 {84*lmm}
+Xc53 r1 cap rt=1m lt=0.5n r=5m c=19.8u l=1.4n
+Xc54 r1 cap rt=1m lt=0.5n r=5m c=19.8u l=1.4n
+Rv1  r1 v1 10m
+Lv1  v1 0 0.71u
+Rp1  v1 0 0.134
+
+* ---- 3.3 V I/O: plane, eight 100 nF and one 10 uF at the FPGA
+I3 0 p3 AC 1
+Lb3 p3 q3 0.1n                    ; ASSUMED: the VCCIO balls' vias in parallel
+Xd1 q3 cap rt=1m lt=0.1n
+Xd2 q3 cap rt=1m lt=0.1n
+Xd3 q3 cap rt=1m lt=0.1n
+Xd4 q3 cap rt=1m lt=0.1n
+Xd5 q3 cap rt=1m lt=0.1n
+Xd6 q3 cap rt=1m lt=0.1n
+Xd7 q3 cap rt=1m lt=0.1n
+Xd8 q3 cap rt=1m lt=0.1n
+Xd9 q3 cap rt=2m lt=0.3n r=5m c=10u l=1.4n
+Cpl q3 0 3n                       ; ASSUMED plane pair capacitance
+Rtr3 q3 t3 3m
+Ltr3 t3 r3 1.5n                   ; ASSUMED spreading inductance of 70 mm of plane
+Xd10 r3 cap rt=1m lt=0.5n r=5m c=13.2u l=1.4n
+Xd11 r3 cap rt=1m lt=0.5n r=5m c=13.2u l=1.4n
+Rv3  r3 v3 10m
+Lv3  v3 0 0.38u
+Rp3  v3 0 0.12
+
+* ---- 2.5 V auxiliary: two balls, two 100 nF, one 10 uF, the regulator 57 mm away
+I2a 0 g2 AC 0.5
+I2b 0 l2 AC 0.5
+Rg2 g2 gl2 27m
+Lg2 gl2 l2 {6*lmm}
+Xe3  l2 cap rt=5m  lt={2*lmm}
+Xe11 g2 cap rt=39m lt={11*lmm}
+Xe19 l2 cap rt=50m lt={13*lmm} r=5m c=10u l=1.4n
+Rtr2 g2 t2 230m
+Ltr2 t2 r2 {57*lmm}
+Xe56 r2 cap rt=1m lt=0.5n r=10m c=1u l=1.2n
+Rv2  r2 v2 50m
+Lv2  v2 0 3u
+Rp2  v2 0 0.94
+
+.control
+ac dec 60 1k 500Meg
+let z1 = (vm(g1) + vm(l1) + abs(vm(g1) - vm(l1))) / 2
+let z2 = (vm(g2) + vm(l2) + abs(vm(g2) - vm(l2))) / 2
+let z3 = vm(p3)
+meas ac zmax_1v1 max z1 from=1k to=100Meg
+meas ac zmax_3v3 max z3 from=1k to=100Meg
+meas ac zmax_2v5 max z2 from=1k to=100Meg
+meas ac fx_1v1 when z1=0.22 rise=last
+meas ac zhf_1v1 find z1 at=500Meg
+meas ac zhf_3v3 find z3 at=500Meg
+meas ac zhf_2v5 find z2 at=500Meg
+meas ac zlf_1v1 find z1 at=1k
+meas ac zmid_1v1 find z1 at=10Meg
+* Targets. ASSUMED current steps: core 0.15 A, I/O 0.5 A (60 lines at
+* 8 mA), auxiliary 0.05 A. Allowed ripple: 3 % of 1.1 V, 5 % of the others.
+let zt_1v1 = 0.03 * 1.1 / 0.15
+let zt_3v3 = 0.05 * 3.3 / 0.5
+let zt_2v5 = 0.05 * 2.5 / 0.05
+print zt_1v1 zt_3v3 zt_2v5
+* DC: the feedback is taken at the regulator. ASSUMED core current 0.15 A;
+* set point 1.0978 V less 1.5 % (reference 1 %, two 1 % resistors).
+let icore = 0.15
+let rpath = 0.205
+let drop_1v1 = icore * rpath
+let vball_1v1 = 1.0978 * 0.985 - drop_1v1
+let ilimit_1v1 = (1.0978 * 0.985 - 1.045) / rpath
+print icore drop_1v1 vball_1v1 ilimit_1v1
+.endc
+.end

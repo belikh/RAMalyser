@@ -74,7 +74,7 @@ Test with no cartridge first, then with a dummy load.
 1. Check the insertion force and the alignment on the rails.
 2. Check that the shell clears the console when the cartridge is seated.
 3. Measure the contact resistance of the DUT-rail contacts at 2 A, and their temperature rise.
-4. Pull a cartridge with the DUT supply on. The firmware drops the rail when `ADP_PRESENT_N` rises.
+4. Pull a cartridge with the DUT supply on. The comparator opens the switch within about 0.1 ms, because `STRAP_5V_OK` opens. The firmware does not read `ADP_PRESENT_N` yet, so the regulator stays on.
 
 ## Limits of revision A
 
@@ -98,6 +98,30 @@ The DUT supply simulation (`hardware/spice/run.sh`) gives the figures to compare
 | Drop to the cartridge at 2 A | 172 mV without the board copper. The regulator senses ahead of the shunt and the switch |
 
 The simulation uses generic transistor models and no wiring inductance. Treat the figures as estimates.
+
+### Open design faults
+
+The simulations in [Study the supplies and the bus](../develop/check.md#study-the-supplies-and-the-bus) report these faults. None is fixed. Each figure is simulated with the models that section names.
+
+| Where | Fault | Simulated |
+| --- | --- | --- |
+| Cartridges | Overshoot at the memory pins | -2.5 V to 7.5 V at 5 V against -1 V and 6 V allowed. 47 Ω in place of 22 Ω brings the worst line inside |
+| Cartridges | Strobe edges cross the threshold three times | Nine edges on RAS, CAS and WE at 5 V with a light load. A DRAM can take one edge for two |
+| Cartridges | The receive buffers over-drive the FPGA inputs | 5.5 V to 6.2 V at pads rated 3.63 V. A 68 Ω resistor at each buffer output gives 3.41 V |
+| DIP cartridge | No soft start on the +5 V switch | 15.4 A peak. The slot's 5 V dips to 1.49 V |
+| DIP cartridge | -5 V sags at power-down | -2.2 V while +12 V is still falling. It should hold -4.5 V |
+| DIP cartridge | +12 V and VCC come on 0.1 ms before -5 V is in tolerance | -4.28 V at that moment |
+| DIP cartridge | -5 V idles at +0.72 V with the supplies off | The comparator's divider pulls it up |
+| Base | 5.5 V is not reachable on every unit | 6.7 % of units stop short. The top of the rail spans 5.40 V to 5.78 V |
+| Base | The comparator can trip at a legitimate set point | 127 mV below 5.5 V and 194 mV below 3.6 V at the worst corner |
+| Base | Low set points are off before any trim | 8.1 % of units are more than 5 % out at 2.6 V. The firmware refuses the rail there and does not trim |
+| Base | Input-pad leakage of the RP2350 can close the switch | 120 µA lifts the request line to 1.09 V. The figure is the erratum's, quoted from memory |
+| Base | DUT inductor at its limit | 2.50 A peak at a 2 A load. The part saturates at 2.0 A to 2.5 A |
+| Base | FPGA core supply | 994 mΩ at 100 MHz against a 220 mΩ target, and 205 mΩ from the regulator to the balls |
+| Base | A 5 V-only charger cannot run 5 V tests | 4.55 V at 2 A. The firmware does not read the input voltage |
+| Firmware | The DIP cartridge's supply enable is never driven | 4116-type chips cannot be tested yet |
+
+The speed measurement has one more limit. The copper alone differs by up to 1.6 ns between bus lines on a cartridge, and the buffers add 2 ns to 10.7 ns by their datasheets. The engine steps in 3.08 ns, so a line can read one step fast or slow until the delay is calibrated per line.
 
 The regulator cannot pull its output down. After the rail is switched off, the regulator's own capacitors stay charged. In the simulation they fall from 5 V to 3.85 V in 0.7 s. If a 3.3 V cartridge follows a 5 V test at once, the comparator keeps the switch open for that time.
 

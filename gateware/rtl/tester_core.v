@@ -217,6 +217,7 @@ module tester_core #(
     reg [11:0] rfsh_row;
     reg [39:0] smp, smp2;
     reg        go_pend;              // start asked for while a refresh cycle ran
+    reg        abort_pend;           // abort asked for; taken at the end of the access
 
     // static values derived from registers (registered once, change rarely)
     reg [11:0] cmask, rmask, lomask, himask;
@@ -277,7 +278,7 @@ module tester_core #(
         if (rst) begin
             state <= S_IDLE; cnt <= 0; addr <= 0; opi <= 0;
             rfsh_timer <= 0; rfsh_pending <= 0; rfsh_row <= 0;
-            st_busy <= 0; st_err <= 0; st_done <= 0; go_pend <= 0;
+            st_busy <= 0; st_err <= 0; st_done <= 0; go_pend <= 0; abort_pend <= 0;
             err_count <= 0; fail_addr <= 0; fail_bits <= 0; fail_data <= 0;
             last_smp <= 0; last_smp2 <= 0;
             opw_r <= 0; opinv_r <= 0; last_addr_r <= 0; last_op_r <= 0; err_r <= 0;
@@ -296,6 +297,10 @@ module tester_core #(
             if (go_r && !st_busy) begin
                 go_pend <= 1; st_busy <= 1; st_done <= 0;
             end
+
+            // An abort is a one-clk pulse too, and the sequencer only looks
+            // for it in one state of each access: hold it until then.
+            if (r_abort && st_busy) abort_pend <= 1;
 
             case (state)
             S_IDLE: begin
@@ -361,7 +366,8 @@ module tester_core #(
                     fail_bits <= fail_bits | diff_r;
                     if (!sat_r) err_count <= err_count + 32'd1;
                 end
-                if (r_abort || (last_op_r && last_addr_r)) begin
+                if (r_abort || abort_pend || (last_op_r && last_addr_r)) begin
+                    abort_pend <= 0;
                     st_busy <= 0; st_done <= 1; state <= S_IDLE;
                 end else begin
                     if (!last_op_r) opi <= opi + 3'd1;
@@ -486,4 +492,8 @@ module tester_core #(
         end
     end
     always @(posedge clk) begin io_d0 <= n_d0; io_d1 <= n_d1; io_oe <= n_oe; end
+
+`ifdef FORMAL
+`include "tester_core_props.vh"
+`endif
 endmodule

@@ -32,7 +32,7 @@ spec ok: 116 IO lines, 90 legacy roles, 8 socket maps, DIMM needs 109 lines
 
 ## Simulate the gateware
 
-```sh title="13 scenarios"
+```sh title="14 scenarios"
 gateware/sim/run.sh
 ```
 
@@ -53,7 +53,42 @@ A scenario that fails prints a line that starts with `FAIL`, and the script exit
 gateware/build.sh
 ```
 
-The script tries placement seeds until one meets timing and prints `seed N meets timing`. It fails if no seed reaches 162.5 MHz.
+The script tries placement seeds until one meets timing and prints `seed N meets timing`. It fails if no seed reaches 162.5 MHz. The last build reached 163.2 MHz.
+
+## Prove the gateware
+
+```sh title="Formal proofs with SymbiYosys"
+gateware/formal/run.sh
+```
+
+```text title="Last lines of the output"
+PASS  mutant start_dropped: caught by tester_core_props.vh:46
+PASS  mutant abort_dropped: caught by tester_core_props.vh:70
+PASS  mutant oe_in_write: caught by tester_core_props.vh:83
+PASS  mutant drive_no_power: caught by tester_core_props.vh:77
+```
+
+The script proves 43 properties of the timing engine and 4 of the SPI register bus for every input, by induction. The run takes about four minutes.
+
+| Property | Meaning |
+| --- | --- |
+| A start is never lost | A start request in any state runs the step, including during a background refresh |
+| An abort is never lost | An abort request ends the access in progress |
+| Busy and done | Done never reads true for a step that has not run |
+| No dead state | Every state leads back to idle |
+| Write and output enable | They never overlap |
+| Power-good | Every bus line is released while `DUT_PG` is low |
+
+The four mutant lines inject a fault into the engine and check that a proof catches it. The proofs assume the cycle length is not rewritten in the middle of a cycle. They do not cover the order of the RAS and CAS edges, which depends on register values.
+
+## Simulate the synthesised gateware
+
+```sh title="Gate-level scenarios"
+gateware/sim/run_gate.sh        # four scenarios, about 12 minutes
+gateware/sim/run_gate.sh all    # all 14, about 47 minutes
+```
+
+The script synthesises the top level for the ECP5 and runs the scenarios on that netlist. All 14 pass, with no difference from the source-level run. Yosys has no simulation models for the PLL, the DDR cells or the input delay, so `sim/ecp5_prims_sim.v` stands in for them. Pad latency and PLL behaviour stay unverified until a board runs.
 
 ## Test the firmware logic
 
@@ -71,7 +106,7 @@ test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
-The three groups are the test algorithms, the JSON console and the front-panel screens. They run `rt-core` against a software model of the engine and a DRAM. The next section runs the same logic against the real gateware. `rt-fw`, the RP2350 binary, has not been compiled yet.
+The three groups are the test algorithms, the JSON console and the front-panel screens. They run `rt-core` against a software model of the engine and a DRAM. The next section runs the same logic against the real gateware. `rt-fw`, the RP2350 binary, compiles but has not run.
 
 ## Simulate the whole chain
 
@@ -118,6 +153,20 @@ PASS  discharge (weak AO3400A): cartridge at 0.05 V after the firmware's 50 ms (
 ```
 
 An earlier circuit failed four of these checks: 24 A of inrush, 17.8 ms to open the switch, no limit between 5.5 V and 5.86 V, and a discharge that depended on the transistor. The switch, its two transistors and the feedback divider were changed until the checks passed.
+
+## Study the supplies and the bus
+
+Five more scripts go beyond nominal values. Each prints `PASS`, `FAIL` and `INFO` lines and exits with status 1 if a check fails. All five fail today: [[guides/bring-up#open-design-faults|Open design faults]] lists what they found.
+
+| Script | Subject | Result |
+| --- | --- | --- |
+| `hardware/spice/run_tolerance.sh` | The DUT rail and its comparator over part tolerances: 2000 random units and 8192 corners | 3 pass, 6 fail |
+| `hardware/spice/run_sequence.sh` | Power-up, a cartridge pulled or plugged under power, brown-out, input-pad leakage | 10 pass, 2 fail |
+| `hardware/spice/reg/run.sh` | The regulators as switching converters, and the impedance of the FPGA supplies | 29 pass, 5 fail |
+| `hardware/spice/dip/run.sh` | The three supply rails of the DIP cartridge and their order | 11 pass, 7 fail |
+| `hardware/spice/si/run.sh` | Overshoot, ringing and delay on the bus lines from the FPGA to the socket and back | 7 pass, 15 fail |
+
+The regulator model is this project's own, built from the datasheets, because the manufacturer publishes no SPICE model. Its loop compensation is assumed, so the stability results are indicative. The bus script downloads Texas Instruments' IBIS models for the two buffer types on the first run. The FPGA pad and the DRAM are generic models. The copper length of every bus line is in `hardware/spice/si/lengths.json`, taken from the routed boards.
 
 ## Preview the display
 

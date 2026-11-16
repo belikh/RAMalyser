@@ -27,6 +27,7 @@ run speed_83          -Ptb_core.MODE=1 -Ptb_core.T_RAC=83.0
 run detect_fpm        -Ptb_core.MODE=2
 run detect_edo        -Ptb_core.MODE=2 -Ptb_core.EDO=1
 run retention         -Ptb_core.MODE=3 -Ptb_core.T_RET=2000000.0
+run abort             -Ptb_core.MODE=4
 wait
 fail=0
 for name in $names; do

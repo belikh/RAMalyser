@@ -1,0 +1,35 @@
+* 2. Power-up. +3V3 and VDUT (5 V) already on, AUX_EN raised at 1 ms.
+*    VBB starts from where it idles (deck 0).
+.include dip.inc
+.include slot.inc
+V33   v33 0 {v33v}
+Vdut  vdut 0 5
+Vx    slot5x slot5 0
+Vaen  auxen 0 PWL(0 0 1m 0 1.001m 3.3)
+.ic v(vbb)=0.72 v(cvb)=0.72 v(base5)=5 v(cb5)=5 v(slot5)=5 v(slot5x)=5 v(s5a)=5 v(s5b)=5 v(q5g)=5
+.control
+tran 1u 12m 0 5u uic
+meas tran vbb_idle    find v(vbb) at=0.9m
+meas tran i_peak      max i(Vx) from=1m to=12m
+meas tran base5_min   min v(base5) from=1m to=12m
+meas tran slot5_min   min v(slot5) from=1m to=12m
+meas tran t_i10_s     when i(Vx)=10 rise=1
+meas tran t_i10_e     when i(Vx)=10 fall=last
+meas tran v12raw_pk   max v(v12raw) from=1m to=12m
+meas tran t_vbb       when v(vbb)=-4.5 fall=1
+meas tran t_ok        when v(auxok)=1.65 rise=1
+meas tran t_vdd       when v(vdd)=0.5 rise=1
+meas tran t_vcc       when v(vcc)=0.5 rise=1
+meas tran vbb_at_vdd  find v(vbb) when v(vdd)=0.5 rise=1
+meas tran vbb_at_vcc  find v(vbb) when v(vcc)=0.5 rise=1
+meas tran vdd_max     max v(vdd) from=1m to=12m
+meas tran vsg12_max   max v(vsg12) from=1m to=12m
+meas tran i12_peak    max i(Vs12) from=1m to=12m
+meas tran vbb_end     find v(vbb) at=11.9m
+meas tran vdd_end     find v(vdd) at=11.9m
+meas tran vcc_end     find v(vcc) at=11.9m
+meas tran p5_end      find v(p5sw) at=11.9m
+meas tran i5_end      find i(Vx) at=11.9m
+meas tran vdiv_end    find v(vdiv) at=11.9m
+.endc
+.end
