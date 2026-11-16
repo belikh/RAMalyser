@@ -42,6 +42,16 @@ for n, ball in enumerate(RIGHT[:52]):
     IO_BALL[64 + n] = ball
 SPARE_BALLS = RIGHT[52:]
 
+# Balls the board cannot route, moved to a spare. R4 sits one row in from the
+# corner with its four escape gaps taken on every layer, so IO59 uses T13 on
+# the outer row. Both are full-featured bank I/O; per-line delay calibration
+# absorbs the longer trace.
+MOVED = {59: "T13"}
+for n, ball in MOVED.items():
+    assert ball in SPARE_BALLS, ball
+    SPARE_BALLS = sorted([b for b in SPARE_BALLS if b != ball] + [IO_BALL[n]], key=_key)
+    IO_BALL[n] = ball
+
 # Non-I/O balls (Lattice pinout table for ECP5U-25, caBGA256).
 FIXED_BALLS = {
     "GND": "A16 H16 T16 D15 N15 T12 G10 H10 J10 K10 F9 H9 J9 K9 F8 G8 H8 J8 K8 K7 K6 "

@@ -8,6 +8,8 @@ The adapter is a cartridge: it lies flat, 5 mm above the base board, and
 slides in from the rear on two rails until the gold fingers on its front
 edge seat in a right-angle card-edge socket under the console.
 """
+HW_REV = "A"                         # hardware revision, printed on every board
+COPYRIGHT = "© 2026 Jupiter Belic"  # printed on every board under the revision
 BASE_SIZE = (160.0, 150.0)
 PCB_THICKNESS = 1.6
 # M3 holes in the base board. The first four are under the cartridge bay and
