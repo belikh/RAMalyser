@@ -1,0 +1,13 @@
+* 5. Shunt voltage and drop to the cartridge at the 2 A limit, 5 V set point
+.include rail.inc
+.param iload=2
+Vdac dac 0 0.6
+Vben buck_en 0 3.3
+Vsw  swen 0 3.3
+Vdis dis 0 0
+Rstrap strap 0 1m
+.control
+op
+print v(vraw,vsh) v(vraw) v(vcart) v(vraw,vcart) v(vsh,vdut)
+.endc
+.end

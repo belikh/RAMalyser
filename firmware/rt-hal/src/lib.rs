@@ -23,11 +23,12 @@ const INA_ADDR: u8 = 0x40; // INA219, A0 = A1 = GND
 const INA_SHUNT: u8 = 0x01;
 const INA_BUS: u8 = 0x02;
 
-/// DUT rail set point. With R1 = 100k (rail to FB), R2 = 19.1k (FB to GND)
+/// DUT rail set point. With R1 = 100k (rail to FB), R2 = 20k (FB to GND)
 /// and R3 = 100k (FB to DAC), Vout = 0.8 * (1 + R1/R2) + (0.8 - Vdac) * R1/R3.
-pub const VDUT_AT_DAC_ZERO_MV: i32 = 5788;
+pub const VDUT_AT_DAC_ZERO_MV: i32 = 5600;
 pub const DAC_REF_MV: i32 = 3300;
-/// Firmware limits; the hardware comparator is the backstop.
+/// Firmware limits. The rail cannot be set above 5.6 V in hardware, and the
+/// comparator cuts the switch above that if the regulator fails.
 pub const VDUT_MIN_MV: u16 = 2600;
 pub const VDUT_MAX_MV: u16 = 5500;
 /// Trip current, milliamps.

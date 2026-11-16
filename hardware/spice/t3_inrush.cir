@@ -1,0 +1,23 @@
+* 3. Switch-on into the cartridge. Firmware sequence: buck on, 10 ms,
+*    switch on, 20 ms, then the current check. 5 V set point (DAC 0.6 V).
+.include rail.inc
+Vdac dac 0 0.6
+Vben buck_en 0 PWL(0 0 10u 3.3)
+Vsw  swen 0 PWL(0 0 10m 0 10.001m 3.3)
+Vdis dis 0 0
+Rstrap strap 0 1m
+.control
+tran 0.1u 30m 0 0.25u
+meas tran raw_at_10ms   find v(vraw) at=9.99m
+meas tran i_peak        max v(ish) from=10m to=30m
+meas tran raw_min       min v(vraw) from=10m to=30m
+meas tran t_gate        when v(vsg)=0.9 rise=1
+meas tran t_90          when v(vcart)=4.5 rise=1
+meas tran t_over_2a_s   when v(ish)=2 rise=1
+meas tran t_over_2a_e   when v(ish)=2 fall=last
+meas tran t_over_30a_s  when v(ish)=30 rise=1
+meas tran t_over_30a_e  when v(ish)=30 fall=last
+meas tran vcart_30ms    find v(vcart) at=29.99m
+meas tran i_30ms        find v(ish) at=29.99m
+.endc
+.end

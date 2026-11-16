@@ -216,6 +216,7 @@ module tester_core #(
     reg        rfsh_pending;
     reg [11:0] rfsh_row;
     reg [39:0] smp, smp2;
+    reg        go_pend;              // start asked for while a refresh cycle ran
 
     // static values derived from registers (registered once, change rarely)
     reg [11:0] cmask, rmask, lomask, himask;
@@ -276,7 +277,7 @@ module tester_core #(
         if (rst) begin
             state <= S_IDLE; cnt <= 0; addr <= 0; opi <= 0;
             rfsh_timer <= 0; rfsh_pending <= 0; rfsh_row <= 0;
-            st_busy <= 0; st_err <= 0; st_done <= 0;
+            st_busy <= 0; st_err <= 0; st_done <= 0; go_pend <= 0;
             err_count <= 0; fail_addr <= 0; fail_bits <= 0; fail_data <= 0;
             last_smp <= 0; last_smp2 <= 0;
             opw_r <= 0; opinv_r <= 0; last_addr_r <= 0; last_op_r <= 0; err_r <= 0;
@@ -289,10 +290,18 @@ module tester_core #(
             end else
                 rfsh_timer <= rfsh_timer - 24'd1;
 
+            // A start is a one-clk pulse. If it arrives during an idle
+            // refresh cycle it is held until the cycle ends, and BUSY rises
+            // at once so the MCU never reads the previous element's results.
+            if (go_r && !st_busy) begin
+                go_pend <= 1; st_busy <= 1; st_done <= 0;
+            end
+
             case (state)
             S_IDLE: begin
                 cnt <= 0;
-                if (go_r) begin
+                if (go_r || go_pend) begin
+                    go_pend <= 0;
                     st_busy <= 1; st_done <= 0; st_err <= 0;
                     err_count <= 0; fail_bits <= 0;
                     addr <= r_dir ? r_addr_end : r_addr_start;
@@ -369,7 +378,9 @@ module tester_core #(
                 else begin
                     cnt <= 0;
                     rfsh_row <= rfsh_row + 12'd1;
-                    state <= st_busy ? S_PREP0 : S_IDLE;
+                    // back into the element it interrupted, or to idle
+                    // (where a held start is taken)
+                    state <= (st_busy && !go_pend) ? S_PREP0 : S_IDLE;
                 end
             end
             default: state <= S_IDLE;

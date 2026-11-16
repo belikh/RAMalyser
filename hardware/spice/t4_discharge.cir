@@ -1,0 +1,18 @@
+* 4. Rail off. Firmware: switch off, buck off, discharge on for 50 ms,
+*    discharge off. Rail at 5 V, no load from the module (worst case).
+.include rail.inc
+Vdac dac 0 0.6
+Vben buck_en 0 PWL(0 3.3 5m 3.3 5.001m 0)
+Vsw  swen 0 PWL(0 3.3 5m 3.3 5.001m 0)
+Vdis dis 0 PWL(0 0 5m 0 5.001m 3.3 55m 3.3 55.001m 0)
+Rstrap strap 0 1m
+.control
+tran 10u 120m
+meas tran t_below_0v5   when v(vcart)=0.5 fall=1
+meas tran vcart_55ms    find v(vcart) at=55m
+meas tran vraw_55ms     find v(vraw) at=55m
+meas tran t_sw_open     when v(vsg)=0.9 fall=last
+meas tran vcart_120ms   find v(vcart) at=120m
+meas tran vraw_120ms    find v(vraw) at=120m
+.endc
+.end

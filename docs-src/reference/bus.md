@@ -21,7 +21,7 @@ The socket is the PCI Express x16 part. The pin assignment is this project's own
 | --- | --- | --- |
 | FPGA lines | 116 | 3.3 V. They do not tolerate 5 V |
 | Ground | 24 | One ground position per six signal positions |
-| DUT rail, [[term:VDUT]] | 8 | 2.5 V to 5.8 V |
+| DUT rail, [[term:VDUT]] | 8 | 2.3 V to 5.6 V |
 | 3.3 V | 2 | Fixed rail |
 | 5 V | 2 | Fixed rail |
 | I2C | 4 | Two buses: cartridge ID (`ID_SDA`, `ID_SCL`) and SPD (`SPD_SDA`, `SPD_SCL`) |

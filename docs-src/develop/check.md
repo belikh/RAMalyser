@@ -1,6 +1,6 @@
 ---
 title: Build and check
-summary: The tools to install and the five commands that check the spec, the gateware, the firmware logic and the enclosure.
+summary: The tools to install and the commands that check the spec, the gateware, the firmware, the whole chain in simulation, the DUT supply and the enclosure.
 order: 10
 icon: terminal
 audience: developers
@@ -13,8 +13,10 @@ status: stable
 | --- | --- |
 | Python 3 | The spec and the enclosure |
 | Icarus Verilog | Gateware simulation |
-| OSS CAD Suite: yosys, nextpnr-ecp5, ecppack | The bitstream |
-| Rust | Firmware |
+| OSS CAD Suite: yosys, nextpnr-ecp5, ecppack, verilator | The bitstream and the whole-chain simulation |
+| A C++ compiler | The whole-chain simulation |
+| ngspice | The DUT supply simulation |
+| Rust | Firmware. The RP2350 binary needs the `thumbv8m.main-none-eabihf` target |
 | uv | The enclosure's Python environment |
 | gh | Fetches the logo for the enclosure. If `gh` has no access, the build makes the case with a blank top |
 
@@ -69,7 +71,53 @@ test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
-The three groups are the test algorithms, the JSON console and the front-panel screens. They run `rt-core` against a software model of the engine and a DRAM. `rt-fw`, the RP2350 binary, has not been compiled yet.
+The three groups are the test algorithms, the JSON console and the front-panel screens. They run `rt-core` against a software model of the engine and a DRAM. The next section runs the same logic against the real gateware. `rt-fw`, the RP2350 binary, has not been compiled yet.
+
+## Simulate the whole chain
+
+```sh title="17 scenarios"
+cd firmware/rt-cosim
+cargo test
+```
+
+```text title="Output"
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+```
+
+`rt-cosim` runs the firmware's own tests through the real board driver (`rt-hal`) against the real gateware. Verilator compiles `spi_regs.v` and `tester_core.v`, and the crate clocks them at the real tick of 3.077 ns. The run takes about two minutes.
+
+| Part | In the simulation |
+| --- | --- |
+| Test logic and board driver | The real code: `rt-core` and `rt-hal` |
+| SPI register bus | Bit by bit at 4 MHz into the real `spi_regs.v` |
+| Timing engine | The real `tester_core.v` |
+| DDR pad cells | A software model: two output phases, two input samples, the fine input delay |
+| Cartridge | A software model: drive and receive buffers with fixed delays, byte-lane enables, weak pulls, sense read-back |
+| DRAM | A pin-level model: access time, FPM or EDO outputs, retention, injected faults |
+| DUT supply | Ideal parts: DAC, regulator set point, switch, over-voltage veto, current monitor |
+
+The scenarios cover a 4-bit chip, a 1-bit chip with separate data in and out, a 30-pin SIMM with parity and a 36-bit EDO 72-pin SIMM. The fault scenarios are a stuck cell, shorted data lines, a dead address line, and shorted and stuck control lines. The rest are an empty socket, a part that is too slow, an overcurrent, the supply margin test and the retention test.
+
+The simulation does not model signal quality, the PLL, the ECP5 pad primitives or supply ramps. `rt-fw` is not part of it.
+
+## Simulate the DUT supply
+
+```sh title="ngspice checks"
+hardware/spice/run.sh
+```
+
+The script prints one `PASS`, `FAIL` or `INFO` line per check and exits with status 1 if a check fails. The regulator is a behavioural model and the transistors are generic models. The lines marked `ASSUMED` in `hardware/spice/rail.inc` list every value that does not come from the board.
+
+All checks pass. [[guides/bring-up#limits-of-revision-a|Limits of revision A]] lists the figures to measure on the first board.
+
+```text title="Four of the lines"
+PASS  5 V cartridge: rail limit: the rail reaches 5.600 V at DAC code 0; the comparator trips at 5.863 V
+PASS  trip to switch open: 0.1 ms after the comparator trips; cartridge saw 6.47 V of a 6.5 V fault
+PASS  inrush: peak 0.4 A, above 2 A for 0 us; supply side dips to 5.00 V
+PASS  discharge (weak AO3400A): cartridge at 0.05 V after the firmware's 50 ms (below 0.5 V after 24.7 ms); supply side left at 4.88 V
+```
+
+An earlier circuit failed four of these checks: 24 A of inrush, 17.8 ms to open the switch, no limit between 5.5 V and 5.86 V, and a discharge that depended on the transistor. The switch, its two transistors and the feedback divider were changed until the checks passed.
 
 ## Preview the display
 
@@ -112,7 +160,22 @@ cd wifi
 pio run
 ```
 
-This firmware has not been compiled yet.
+This firmware has not been compiled yet. The ESP32 toolchain needs about 4 GB of disk.
+
+## RP2350 firmware
+
+```sh title="Build the binary"
+rustup target add thumbv8m.main-none-eabihf
+gateware/build.sh
+cd firmware/rt-fw
+cargo build --release
+```
+
+```text title="Last line of the output"
+Finished `release` profile [optimized + debuginfo] target(s)
+```
+
+The binary compiles and links. It has not run on a board.
 
 ## Build the enclosure
 

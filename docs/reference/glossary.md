@@ -8,4 +8,4 @@
 - <a id="term-march-element"></a>**March element**: One pass over an address range that does up to six read or write operations at each address.
 - <a id="term-tick"></a>**Tick**: Half a clock period of the timing engine: 3.077 ns at 162.5 MHz. Every bus edge is placed to one tick.
 - <a id="term-timing-engine"></a>**Timing engine**: The FPGA logic that drives the memory bus, places every edge and compares what it reads.
-- <a id="term-vdut"></a>**VDUT**: The supply rail of the device under test. The base unit sets it between 2.5 V and 5.8 V and measures its current.
+- <a id="term-vdut"></a>**VDUT**: The supply rail of the device under test. The base unit sets it between 2.3 V and 5.6 V and measures its current.

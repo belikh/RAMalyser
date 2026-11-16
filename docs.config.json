@@ -13,7 +13,7 @@
     "Base unit": "The main board in its tray and console: processor, FPGA, power supplies, display, keys and the cartridge slot.",
     "Cartridge": "An adapter board in a printed shell that carries the sockets and buffers for one memory family. It slides into the base unit from the rear.",
     "DUT": "Device under test: the memory module or chip in a cartridge socket.",
-    "VDUT": "The supply rail of the device under test. The base unit sets it between 2.5 V and 5.8 V and measures its current.",
+    "VDUT": "The supply rail of the device under test. The base unit sets it between 2.3 V and 5.6 V and measures its current.",
     "Tick": "Half a clock period of the timing engine: 3.077 ns at 162.5 MHz. Every bus edge is placed to one tick.",
     "March element": "One pass over an address range that does up to six read or write operations at each address.",
     "Timing engine": "The FPGA logic that drives the memory bus, places every edge and compares what it reads."

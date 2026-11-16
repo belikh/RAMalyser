@@ -45,11 +45,13 @@ Use a bench supply set to 5 V with a 100 mA limit on `VBUS`.
 
 Test with no cartridge first, then with a dummy load.
 
-1. Sweep the DAC. The output goes from 2.5 V to 5.8 V and rises with every step. Record the table.
+1. Sweep the DAC. The output goes from 2.3 V to 5.6 V and falls with every step of the DAC. Record the table.
 2. Leave `STRAP_5V_OK` open and raise the output. The switch drops out above about 3.85 V.
 3. Ground `STRAP_5V_OK` and raise the output. The switch drops out above about 5.86 V.
 4. Measure ripple and step response at 0 A, 1 A and 2 A.
 5. Compare the current reading with a meter.
+6. Switch the rail on into a cartridge and record the current with a probe. Compare the peak and the rise time with the table below.
+7. Force the comparator to trip and measure how long the switch takes to open.
 6. Short the output and measure the trip time.
 7. Measure the discharge time after switch-off.
 8. Measure the switch temperature at 2 A.
@@ -86,6 +88,22 @@ Test with no cartridge first, then with a dummy load.
 | ECC-optimised 72-pin SIMMs | Different pinout, no socket map. |
 | Access time from CAS, page-mode cycle time | Not measured separately. |
 | EMC | No work done. A unit sold assembled needs it. |
+
+The DUT supply simulation (`hardware/spice/run.sh`) gives the figures to compare with the first board. Measure each one before you plug in a module.
+
+| Measure | Simulated |
+| --- | --- |
+| Rail at DAC code 0 | 5.600 V. The rail cannot be set higher |
+| Comparator trip, `STRAP_5V_OK` open | 3.851 V |
+| Comparator trip, `STRAP_5V_OK` grounded | 5.863 V |
+| Switch-on into a SIMM cartridge at 5 V | 0.4 A peak. The cartridge reaches 90 % after 1.5 ms |
+| Comparator trip to switch open | 0.1 ms |
+| Discharge from 5 V | Below 0.5 V after 25 ms |
+| Drop to the cartridge at 2 A | 172 mV without the board copper. The regulator senses ahead of the shunt and the switch |
+
+The simulation uses generic transistor models and no wiring inductance. Treat the figures as estimates.
+
+The regulator cannot pull its output down. After the rail is switched off, the regulator's own capacitors stay charged. In the simulation they fall from 5 V to 3.85 V in 0.7 s. If a 3.3 V cartridge follows a 5 V test at once, the comparator keeps the switch open for that time.
 
 :::see-also
 - [[start/build]]

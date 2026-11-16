@@ -9,7 +9,7 @@ A [Base unit](../reference/glossary.md#term-base-unit) works at 3.3 V only. Each
 ```text
  USB-C PD 9 V --> bucks: 3.3 V, 5 V, 1.1 V --> LDO 2.5 V
         |
-        +--> DUT buck 2.5 to 5.8 V (DAC-set) --> shunt + INA219 --> P-FET switch --> VDUT
+        +--> DUT buck 2.3 to 5.6 V (DAC-set) --> shunt + INA219 --> P-FET switch --> VDUT
                                  over-voltage comparator --+ (cuts the switch)
 
  RP2350B -- SPI --> ECP5 FPGA (timing engine) == 116 lines, 22 ohm ==> card-edge slot ==> cartridge
@@ -54,7 +54,7 @@ Weak pulls on DQ, one net for even bits and one for odd bits, show whether a lin
 | Part | Behaviour |
 | --- | --- |
 | Input | USB-C PD, 9 V requested. From a 5 V-only source the DUT rail cannot reach 5 V, so the firmware must refuse 5 V tests |
-| DUT rail | Adjustable buck. An I2C DAC feeds the feedback node to set 2.5 V to 5.8 V |
+| DUT rail | Adjustable buck. An I2C DAC feeds the feedback node to set 2.3 V to 5.6 V. The firmware uses 2.6 V to 5.5 V |
 | Current | INA219 across a 20 milliohm shunt |
 | Switch | P-FET with soft start. A 100 ohm resistor discharges the rail when it is off |
 | Over-voltage | A comparator cuts the switch above 3.85 V, or above 5.86 V when the cartridge grounds `STRAP_5V_OK` |

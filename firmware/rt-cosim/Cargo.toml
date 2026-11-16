@@ -1,0 +1,17 @@
+[package]
+name = "rt-cosim"
+version = "0.1.0"
+edition = "2021"
+license = "PolyForm-Noncommercial-1.0.0"
+description = "Whole-chain simulation: the RAMalyser firmware drivers and test logic running against the real gateware (Verilator) and a pin-level cartridge and DRAM model"
+publish = false
+
+[dependencies]
+rt-core = { path = "../rt-core", features = ["sim"] }
+rt-hal = { path = "../rt-hal" }
+embedded-hal = "1"
+
+[profile.dev]
+opt-level = 3        # the simulation steps the gateware clock millions of times
+
+[workspace]

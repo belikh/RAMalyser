@@ -1,0 +1,17 @@
+* 2b. How long the switch takes to open after the comparator trips.
+*     Rail forced from 5.0 V to 6.5 V in 10 us, 5 V cartridge, 100 mA load.
+.include rail.inc
+.param iload=0.1
+Vdac dac 0 0
+Vben buck_en 0 0
+Vf   vraw 0 PWL(0 5 5m 5 5.01m 6.5)
+Vsw  swen 0 3.3
+Vdis dis 0 0
+Rstrap strap 0 1m
+.control
+tran 5u 60m
+meas tran t_trip when v(ovpn)=1.5 fall=1
+meas tran t_open when i(Vf)=-0.012 cross=last
+meas tran vcart_max max v(vcart) from=5m to=60m
+.endc
+.end

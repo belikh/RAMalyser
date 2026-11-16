@@ -133,7 +133,7 @@ Contents
    * - |cpu-l| |cpu-d| ``gateware/``
      - ECP5 timing engine in Verilog, a simulation suite with a fault-injecting DRAM model, and the bitstream build
    * - |rust-l| |rust-d| ``firmware/``
-     - ``rt-core`` (test logic, console and front-panel screens, tested on a PC), ``rt-hal`` (board drivers) and ``rt-fw`` (RP2350 binary, not yet compiled)
+     - ``rt-core`` (test logic, console and front-panel screens, tested on a PC), ``rt-hal`` (board drivers), ``rt-cosim`` (the firmware running against the real gateware in simulation) and ``rt-fw`` (RP2350 binary, compiles, not yet run)
    * - |code-l| |code-d| ``web/``
      - The web interface, served by the Wi-Fi module or used over USB from Chrome
    * - |wifi-l| |wifi-d| ``wifi/``
@@ -142,6 +142,8 @@ Contents
      - Parametric 3D-printed case (build123d) with STEP and STL output
    * - |topology-l| |topology-d| ``hardware/schematics/``
      - Schematic PDFs of the base unit and the cartridges
+   * - |topology-l| |topology-d| ``hardware/spice/``
+     - ngspice simulation of the DUT supply
    * - |book-l| |book-d| ``docs/``
      - Generated documentation. The source is ``docs-src/``
 
@@ -158,7 +160,7 @@ PCB layouts and fabrication files are not published.
 Build and check
 ---------------
 
-The build needs Python 3, Icarus Verilog, OSS CAD Suite (yosys, nextpnr-ecp5, ecppack), Rust and uv.
+The build needs Python 3, Icarus Verilog, OSS CAD Suite (yosys, nextpnr-ecp5, ecppack, verilator), a C++ compiler, ngspice, Rust and uv.
 
 .. code-block:: sh
 
@@ -166,6 +168,8 @@ The build needs Python 3, Icarus Verilog, OSS CAD Suite (yosys, nextpnr-ecp5, ec
    gateware/sim/run.sh                                  # 13 simulation scenarios
    gateware/build.sh                                    # bitstream, fails on timing
    (cd firmware && cargo test --features sim)           # 32 tests of the firmware logic
+   (cd firmware/rt-cosim && cargo test)                 # 17 scenarios: firmware on the real gateware
+   hardware/spice/run.sh                                # DUT supply checks
    (cd enclosure && uv venv && uv pip install -e . && .venv/bin/python enclosure.py --check)
 
 The enclosure build fetches the logo from the design-system release with ``gh``. If ``gh`` has no access, the build makes the case with a blank top.

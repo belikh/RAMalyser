@@ -1,9 +1,8 @@
 # rt-fw: RP2350B firmware
 
-**Status: written, not compiled, not run.** This crate could not be built on
-the development machine (no `thumbv8m.main-none-eabihf` target for the
-distribution's Rust compiler), and the board it targets has not been made.
-Expect to fix dependency versions and API details on first build.
+**Status: compiles and links, not run.** The board it targets has not been
+made, so nothing here has executed on an RP2350. `memory.x` is the memory
+map for the 16 MB flash on the base board.
 
 All test logic, the command console and the board drivers live in `rt-core`
 and `rt-hal`, which *are* compiled and tested (`cargo test --features sim`

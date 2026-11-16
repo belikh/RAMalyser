@@ -26,6 +26,11 @@ use embedded_hal_bus::spi::RefCellDevice;
 use embedded_io_async::{Read as _, Write as _};
 use heapless::String;
 use panic_halt as _;
+
+/// The block the RP2350 boot ROM reads to accept the image.
+#[link_section = ".start_block"]
+#[used]
+pub static IMAGE_DEF: embassy_rp::block::ImageDef = embassy_rp::block::ImageDef::secure_exe();
 use rt_core::ui::{Action, Info, Ui};
 use rt_core::{console, device, regs, timing, Platform};
 use rt_hal::display::{Keys, Signals, St7789};
@@ -121,7 +126,7 @@ async fn main(_spawner: Spawner) {
     static LINK_RX: StaticCell<[u8; 128]> = StaticCell::new();
     let mut link_cfg = uart::Config::default();
     link_cfg.baudrate = LINK_BAUD;
-    let mut link = BufferedUart::new(p.UART0, p.PIN_0, p.PIN_1, Irqs, LINK_TX.init([0; 2048]),
+    let mut link = BufferedUart::new(p.UART0, Irqs, p.PIN_0, p.PIN_1, LINK_TX.init([0; 2048]),
                                      LINK_RX.init([0; 128]), link_cfg);
 
     // USB serial console
