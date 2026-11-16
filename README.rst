@@ -52,6 +52,8 @@ The guides and references are at `docs.jupiter.au/ramalyser <https://docs.jupite
      - Fit a cartridge and a module, run a test and read the result
    * - `Console commands <docs/reference/console.md>`_
      - Every command, the report format and each message
+   * - `Use the web interface <docs/guides/use-the-web-interface.md>`_
+     - Run tests from a browser, over Wi-Fi or USB
    * - `Build a unit <docs/start/build.md>`_
      - Boards, fabrication limits, hand-fitted parts, enclosure and assembly
    * - `Bring up a new unit <docs/guides/bring-up.md>`_
@@ -87,6 +89,14 @@ The tester identifies the module (size, width, FPM or EDO) and checks its wiring
 Contents
 --------
 
+.. |code-l| image:: https://raw.githubusercontent.com/belikh/design/latest/packages/github/graphics/icon/code-light.svg#gh-light-mode-only
+   :width: 20
+.. |code-d| image:: https://raw.githubusercontent.com/belikh/design/latest/packages/github/graphics/icon/code-dark.svg#gh-dark-mode-only
+   :width: 20
+.. |wifi-l| image:: https://raw.githubusercontent.com/belikh/design/latest/packages/github/graphics/icon/wifi-light.svg#gh-light-mode-only
+   :width: 20
+.. |wifi-d| image:: https://raw.githubusercontent.com/belikh/design/latest/packages/github/graphics/icon/wifi-dark.svg#gh-dark-mode-only
+   :width: 20
 .. |file-l| image:: https://raw.githubusercontent.com/belikh/design/latest/packages/github/graphics/icon/file-light.svg#gh-light-mode-only
    :width: 20
 .. |file-d| image:: https://raw.githubusercontent.com/belikh/design/latest/packages/github/graphics/icon/file-dark.svg#gh-dark-mode-only
@@ -123,7 +133,11 @@ Contents
    * - |cpu-l| |cpu-d| ``gateware/``
      - ECP5 timing engine in Verilog, a simulation suite with a fault-injecting DRAM model, and the bitstream build
    * - |rust-l| |rust-d| ``firmware/``
-     - ``rt-core`` (test logic, tested on a PC), ``rt-hal`` (board drivers) and ``rt-fw`` (RP2350 binary, not yet compiled)
+     - ``rt-core`` (test logic, console and front-panel screens, tested on a PC), ``rt-hal`` (board drivers) and ``rt-fw`` (RP2350 binary, not yet compiled)
+   * - |code-l| |code-d| ``web/``
+     - The web interface, served by the Wi-Fi module or used over USB from Chrome
+   * - |wifi-l| |wifi-d| ``wifi/``
+     - Firmware for the optional Wi-Fi module (ESP32-C6, not yet compiled)
    * - |image-l| |image-d| ``enclosure/``
      - Parametric 3D-printed case (build123d) with STEP and STL output
    * - |topology-l| |topology-d| ``hardware/schematics/``
@@ -151,7 +165,7 @@ The build needs Python 3, Icarus Verilog, OSS CAD Suite (yosys, nextpnr-ecp5, ec
    python3 spec/ramspec.py --check                      # bus and pin maps
    gateware/sim/run.sh                                  # 13 simulation scenarios
    gateware/build.sh                                    # bitstream, fails on timing
-   (cd firmware && cargo test --features sim)           # 18 algorithm tests
+   (cd firmware && cargo test --features sim)           # 32 tests of the firmware logic
    (cd enclosure && uv venv && uv pip install -e . && .venv/bin/python enclosure.py --check)
 
 The enclosure build fetches the logo from the design-system release with ``gh``. If ``gh`` has no access, the build makes the case with a blank top.

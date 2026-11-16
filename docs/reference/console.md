@@ -2,7 +2,7 @@
 
 # Console commands
 
-The console is a USB serial port named `RAMalyser console`. Each command is one line. Numbers are decimal, or hexadecimal with `0x`.
+The console is a USB serial port named `RAMalyser console`. Open it with a terminal program, for example `screen /dev/ttyACM0` on Linux. The tester prints a line that starts with `RAMalyser. FPGA:` when the terminal opens. Each command is one line. Numbers are decimal, or hexadecimal with `0x`.
 
 ## Commands
 
@@ -14,6 +14,8 @@ The console is a USB serial port named `RAMalyser console`. Each command is one 
 | `id` | None | The engine ID and the [Tick](glossary.md#term-tick) period |
 | `peek REG` | Register address below `0x80` | The 32-bit value of an engine register |
 | `poke REG VALUE` | Register address and value | Writes an engine register and prints `ok` |
+
+Put `json` before `list`, `id`, `basic N` or `full N` to get the answer as one line of JSON. [Web interface and module API](web-api.md) describes it.
 
 `firmware/rt-core/src/regs.rs` lists the registers. `poke` can drive the bus directly, so use it only without a module fitted.
 
@@ -90,4 +92,5 @@ Control line names are `MA0` to `MA11`, `WE0`, `WE1`, `OE0`, `OE1`, `RAS0` to `R
 **See also**
 
 - [Test a module](../guides/test-a-module.md)
-- [Supported memory](memory.md)
+- [Front panel](front-panel.md)
+- [Web interface and module API](web-api.md)

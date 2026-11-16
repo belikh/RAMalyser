@@ -2,19 +2,17 @@
 
 # Test a module
 
-You run tests from a serial console over USB. The firmware does not drive the display or the keys yet.
-
 > [!WARNING]
 > **Revision A has never been built**
 >
-> These steps follow the firmware as written. Nobody has run them on hardware. The output below comes from the firmware running against its software model.
+> These steps follow the firmware as written. Nobody has run them on hardware. The firmware logic runs against a software model of the tester.
 
 ## Fit the cartridge and the module
 
-1. Unplug the tester, or check that the module-power LED is off.
+1. Check that the module-power LED is off.
 2. Slide the [Cartridge](../reference/glossary.md#term-cartridge) in from the rear, sockets up, until the gold fingers seat.
 3. Put the module or chip in its socket. [Supported memory](../reference/memory.md) lists the socket for each type.
-4. Connect the tester to a computer with a USB-C cable.
+4. Connect the tester to a USB-C PD charger.
 
 > [!CAUTION]
 > **Check the orientation of a chip**
@@ -26,72 +24,42 @@ You run tests from a serial console over USB. The firmware does not drive the di
 >
 > The tester asks the USB-C port for 9 V. A port that gives only 5 V cannot bring the DUT rail to 5 V, so 5 V memory cannot be tested from it.
 
-## Open the console
+## Run a test
 
-1. Find the serial port. The tester appears as a USB serial device named `RAMalyser console`.
-2. Open the port with a terminal program.
+The display lists the memory profiles. The bottom two lines show what each key does.
 
-**Linux**
+1. Press F1 or F2 to move to the profile that matches your memory.
+2. Press F3 for the quick test or F4 for the full test.
+3. Wait while the display shows `Testing`. Keep the module in its socket.
 
-```sh
-screen /dev/ttyACM0
-```
+| Test | Checks |
+| --- | --- |
+| Quick | Wiring, identification, access time, every cell written and verified twice |
+| Full | The quick test, then March C-, checkerboard, address-in-data, supply margins, voltage bounce and retention |
 
-The tester prints one line that starts with `RAMalyser. FPGA:` and ends with `engine id 0x52414d31`.
+## Read the result
 
-## Run a quick test
+| Display | LED | Buzzer | Meaning |
+| --- | --- | --- | --- |
+| `PASS` | Green | One beep | The memory passed. The lines below give its size, mode, access time and current |
+| `FAIL` | Red | Three beeps | Something is wrong. The second line names the first fault |
+| `NO DEVICE` | Off | Three beeps | No memory answers in that socket |
 
-1. Type `list` to see the profiles.
-
-**list**
-
-```text
-0: 72-pin SIMM
-1: 30-pin SIMM
-2: 4116 (16K x1)  (-5 V / +12 V rails)
-3: 4164 / 41256
-4: 4416 / 4464
-5: 411000 (1M x1)
-6: 44256 / 514400
-```
-
-2. Type `basic` and the number of the profile that matches your memory.
-
-**basic 0, a good 4 MB 70 ns SIMM**
+**A pass after a full test**
 
 ```text
+PASS
 72-pin SIMM
-4 MB  1024K x36  (10x10 addr)
+4 MB  1024K x36
 FPM  70 ns  120 mA
-PASS
+Holds 512 ms
 ```
 
-The quick test checks the wiring, identifies the module, measures its access time and writes and verifies every cell twice.
+1. After a `FAIL`, press F2 for the details: the phase, the error count, the first failing address and the failing data lines.
+2. Press F1 to run the same test again.
+3. Press ESC to go back to the list.
 
-## Run the long test
-
-Type `full` and the profile number. The long test adds March C-, checkerboard, address-in-data, supply margins, voltage bounce and retention.
-
-**full 0**
-
-```text
-72-pin SIMM
-4 MB  1024K x36  (10x10 addr)
-FPM  70 ns  retention >= 512 ms  120 mA
-PASS
-```
-
-## Read a failure
-
-| Output | Cause | What to do |
-| --- | --- | --- |
-| `No device found` | No memory answers in that socket | Reseat the module. Check that the profile matches the socket |
-| `FAIL: MA3 stuck low` | A control line on the cartridge does not move | Look for a bent socket pin or a solder bridge on that line |
-| `FAIL: CAS0 shorted to CAS1` | Two control lines follow each other | Look for a bridge between those two lines |
-| `FAIL: supply fault (900 mA)` | The module draws too much current, or the DUT rail did not come up | Remove the module. Check its orientation |
-| `FAIL in Pattern: 1 errors, first at 0x1234, bad bits 0x0000000020, read 0xfaaaaaaa8a` | A cell reads back wrong | The module is faulty. `bad bits` marks each failing data line |
-
-In `bad bits`, bit 0 is DQ0. The value `0x0000000020` has bit 5 set, so DQ5 failed.
+[Front panel](../reference/front-panel.md) describes every screen.
 
 ## Remove the module
 
@@ -101,6 +69,6 @@ In `bad bits`, bit 0 is DQ0. The value `0x0000000020` has bit 5 set, so DQ5 fail
 
 **See also**
 
+- [Use the web interface](use-the-web-interface.md)
+- [Front panel](../reference/front-panel.md)
 - [Console commands](../reference/console.md)
-- [Supported memory](../reference/memory.md)
-- [Bring up a new unit](bring-up.md)

@@ -13,3 +13,13 @@
 /dist/
 /.jupiter-docs/
 /gateware/sim/build/
+
+# design system files and the display assets generated from them
+/firmware/.design/
+/firmware/rt-hal/src/generated/
+
+# web interface: fetched design files, the built page and the generated firmware header
+/web/.design/
+/web/dist/
+/wifi/src/web_assets.h
+/wifi/.pio/

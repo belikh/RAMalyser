@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAMalyser</title>
+<link rel="stylesheet" href="jupiter-fonts.css">
+<link rel="stylesheet" href="jupiter.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="jp-container app">
+  <header class="app-head">
+    <div>
+      <p class="jp-eyebrow">Memory tester</p>
+      <h1>RAMalyser</h1>
+    </div>
+    <picture class="app-logo">
+      <source media="(prefers-color-scheme: dark)" srcset="jupiter-logo-dark.svg">
+      <img alt="jupiter.au" src="jupiter-logo-light.svg">
+    </picture>
+  </header>
+
+  <div class="jp-grid">
+    <section class="jp-md-4 jp-stack" aria-labelledby="run-title">
+      <h2 id="run-title">Test</h2>
+      <p><span id="link" class="jp-badge" role="status">Looking for the tester</span></p>
+      <div id="usb" hidden>
+        <p class="jp-hint">This page is not served by a tester. Connect one with a USB cable.</p>
+        <button id="usb-connect" class="jp-btn jp-btn--secondary" type="button">Connect over USB</button>
+      </div>
+      <div id="no-serial" class="jp-callout jp-callout--warn" hidden>
+        <p class="jp-callout__title">This browser cannot use USB serial</p>
+        <p>Open the page in Chrome or Edge on a computer, or open the address of the tester's Wi-Fi module.</p>
+      </div>
+      <label class="jp-field">
+        <span class="jp-label">Memory</span>
+        <select id="profile" class="jp-select" disabled></select>
+        <span id="profile-hint" class="jp-hint"></span>
+      </label>
+      <div class="jp-inline">
+        <button id="quick" class="jp-btn jp-btn--primary" type="button" disabled>Quick test</button>
+        <button id="full" class="jp-btn jp-btn--secondary" type="button" disabled>Full test</button>
+      </div>
+      <p id="busy" class="jp-hint" role="status" hidden>Testing. Keep the module in its socket.</p>
+      <dl id="unit" class="app-facts" hidden>
+        <dt class="jp-label">Engine</dt><dd id="engine" class="jp-mono"></dd>
+        <dt class="jp-label">Tick</dt><dd id="tick" class="jp-mono"></dd>
+      </dl>
+    </section>
+
+    <section class="jp-md-8 jp-stack" aria-labelledby="result-title" aria-live="polite">
+      <h2 id="result-title">Result</h2>
+      <p id="empty" class="jp-muted">No test has run yet. Choose the memory and start a test.</p>
+      <div id="result" class="jp-stack" hidden>
+        <div class="jp-inline">
+          <p id="verdict" class="jp-display"></p>
+          <span id="verdict-badge" class="jp-badge"></span>
+        </div>
+        <p id="result-what" class="jp-muted"></p>
+        <div id="problem" class="jp-callout jp-callout--danger" hidden>
+          <p id="problem-title" class="jp-callout__title"></p>
+          <p id="problem-text"></p>
+        </div>
+        <div id="stats" class="app-stats"></div>
+        <div id="detail" hidden>
+          <h3>Failure</h3>
+          <div class="jp-table-wrap">
+            <table class="jp-table">
+              <tbody id="detail-rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="jp-col-12 jp-stack" aria-labelledby="history-title">
+      <h2 id="history-title">This session</h2>
+      <p id="history-empty" class="jp-muted">Results appear here as you test.</p>
+      <div id="history-wrap" class="jp-table-wrap" hidden>
+        <table class="jp-table">
+          <thead>
+            <tr><th>Time</th><th>Memory</th><th>Test</th><th>Result</th><th>Size</th>
+                <th class="jp-num">Access</th><th class="jp-num">Current</th></tr>
+          </thead>
+          <tbody id="history"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="wifi" class="jp-md-6 jp-stack" aria-labelledby="wifi-title" hidden>
+      <h2 id="wifi-title">Wi-Fi</h2>
+      <p id="wifi-now" class="jp-muted"></p>
+      <form id="wifi-form" class="jp-stack">
+        <label class="jp-field">
+          <span class="jp-label">Network name</span>
+          <input id="ssid" class="jp-input" name="ssid" autocomplete="off" required maxlength="32">
+        </label>
+        <label class="jp-field">
+          <span class="jp-label">Password</span>
+          <input id="pass" class="jp-input" name="password" type="password" autocomplete="off" maxlength="63">
+          <span class="jp-hint">The module restarts and joins this network. If it cannot, it opens its own network again.</span>
+        </label>
+        <button class="jp-btn jp-btn--secondary" type="submit">Save and restart</button>
+      </form>
+      <p id="wifi-saved" class="jp-hint" role="status" hidden>Saved. The module is restarting.</p>
+    </section>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+/* Layout only. Every colour, size and space is a design system variable
+   (jupiter.css); nothing here restates a value. */
+.app { padding-block: var(--jp-space-6); }
+.app-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--jp-space-4);
+  margin-block-end: var(--jp-space-7);
+}
+.app-logo img { inline-size: calc(var(--jp-space-8) * 2); block-size: auto; display: block; }
+.app-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(calc(var(--jp-space-8) * 2.5), 1fr));
+  gap: var(--jp-space-4);
+}
+.app-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: var(--jp-space-4);
+  row-gap: var(--jp-space-1);
+  margin: 0;
+}
+.app-facts dd { margin: 0; }
+.app .jp-grid { row-gap: var(--jp-space-7); }
+/* the hidden attribute wins over component display rules */
+[hidden] { display: none !important; }

@@ -65,9 +65,11 @@ Weak pulls on DQ, one net for even bits and one for odd bits, show whether a lin
 
 | Crate | Role |
 | --- | --- |
-| `rt-core` | All test logic, behind a `Platform` trait. It runs on a PC against a software model of the engine and a DRAM |
-| `rt-hal` | Board drivers |
-| `rt-fw` | The RP2350 binary. It implements `Platform` on the hardware. It has not been compiled yet |
+| `rt-core` | All test logic, the console and the front-panel screens, behind the `Platform` and `Canvas` traits. It runs on a PC against a software model of the engine and a DRAM |
+| `rt-hal` | Board drivers: FPGA registers, DUT supply, display, keys, LEDs and buzzer |
+| `rt-fw` | The RP2350 binary. It wires the pins to those drivers and serves the keys, the USB console and the Wi-Fi link in one loop. It has not been compiled yet |
+
+The Wi-Fi module has its own firmware in `wifi/`. It serves the page in `web/` and passes commands to the tester over a serial link.
 
 **See also**
 

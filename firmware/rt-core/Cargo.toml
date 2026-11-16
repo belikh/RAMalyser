@@ -10,3 +10,7 @@ default = []
 sim = []          # software model of the timing engine + DRAM, for host tests
 
 [dependencies]
+
+[[example]]
+name = "sim_console"
+required-features = ["sim"]

@@ -15,6 +15,7 @@ pub mod report;
 pub mod sim;
 pub mod tests;
 pub mod timing;
+pub mod ui;
 
 /// What the test logic needs from the hardware.
 pub trait Platform {

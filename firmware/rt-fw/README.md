@@ -20,9 +20,24 @@ What it does:
    display), SPI1 (FPGA configuration), I2C0 (DAC, current monitor, adapter
    ID EEPROM).
 2. Loads the embedded bitstream into the ECP5 and checks the engine ID.
-3. Runs the `rt-core` console over USB serial: `list`, `basic <n>`,
-   `full <n>`, `id`, `peek`, `poke`.
+3. Draws the front-panel interface (`rt_core::ui`) on the display and
+   reads the six keys: choose a profile, run a quick or a full test, read
+   the result and its details.
+4. Runs the `rt-core` console over USB serial: `list`, `basic <n>`,
+   `full <n>`, `id`, `peek`, `poke`, and the same with a `json` prefix.
+5. Runs the same console on UART0 (115200 baud) for the optional Wi-Fi
+   module (`../../wifi`).
 
-Not implemented yet: the display and keys (the console is the only UI),
-adapter identification from the ID EEPROM, calibration storage, SPD access.
-USB is not serviced while a test runs.
+A test started from the keys, the USB console or the Wi-Fi module shows on
+the display, lights the pass or fail LED and sounds the buzzer.
+
+Before building, run `../update-design.sh` once: it downloads the design
+system release and generates the display's palette and fonts into
+`../rt-hal/src/generated/` (not committed).
+
+Not implemented yet: adapter identification from the ID EEPROM, calibration
+storage, SPD access. Nothing is served while a test runs.
+
+The parts of this file most likely to need changes on first build are the
+`BufferedUart::new` argument order and the type of the shared SPI bus, which
+differ between `embassy-rp` releases.

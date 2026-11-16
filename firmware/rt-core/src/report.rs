@@ -124,3 +124,95 @@ impl fmt::Display for Report {
         }
     }
 }
+
+impl Phase {
+    pub fn name(self) -> &'static str {
+        match self {
+            Phase::Power => "Power",
+            Phase::Wiring => "Wiring",
+            Phase::Detect => "Detect",
+            Phase::Pattern => "Pattern",
+            Phase::March => "March",
+            Phase::Checkerboard => "Checkerboard",
+            Phase::AddressInData => "AddressInData",
+            Phase::Retention => "Retention",
+            Phase::VoltageLow => "VoltageLow",
+            Phase::VoltageHigh => "VoltageHigh",
+            Phase::Bounce => "Bounce",
+        }
+    }
+}
+
+/// Overall outcome, for the display, the LEDs and the web interface.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Verdict {
+    Pass,
+    Fail,
+    NoDevice,
+}
+
+impl Report {
+    pub fn verdict(&self) -> Verdict {
+        if self.passed() {
+            Verdict::Pass
+        } else if self.no_device && !self.power_fault
+            && self.wire_faults.iter().all(|w| w.is_none())
+        {
+            Verdict::NoDevice
+        } else {
+            Verdict::Fail
+        }
+    }
+
+    /// The report as one line of JSON (no newline). 40-bit masks are hex
+    /// strings: a browser cannot hold them in a number.
+    pub fn write_json<W: fmt::Write>(&self, f: &mut W) -> fmt::Result {
+        let g = &self.geometry;
+        write!(f, "{{\"profile\":\"{}\",\"passed\":{},\"verdict\":\"{}\",\"no_device\":{},\"power_fault\":{}",
+               self.profile, self.passed(),
+               match self.verdict() { Verdict::Pass => "pass", Verdict::Fail => "fail",
+                                      Verdict::NoDevice => "no_device" },
+               self.no_device, self.power_fault)?;
+        write!(f, ",\"bits\":{},\"words\":{},\"width\":{},\"row_bits\":{},\"col_bits\":{}",
+               g.bits(), if g.row_bits + g.col_bits == 0 { 0 } else { g.words() },
+               g.data_bits(), g.row_bits, g.col_bits)?;
+        match self.mode {
+            Some(Mode::Edo) => write!(f, ",\"mode\":\"EDO\"")?,
+            Some(Mode::Fpm) => write!(f, ",\"mode\":\"FPM\"")?,
+            None => write!(f, ",\"mode\":null")?,
+        }
+        match self.t_rac_ns {
+            Some(t) => write!(f, ",\"t_rac_ns\":{t}")?,
+            None => write!(f, ",\"t_rac_ns\":null")?,
+        }
+        match self.retention_ms {
+            Some(r) => write!(f, ",\"retention_ms\":{r}")?,
+            None => write!(f, ",\"retention_ms\":null")?,
+        }
+        write!(f, ",\"current_ma\":{},\"wire_faults\":[", self.current_ma)?;
+        let mut first = true;
+        for w in self.wire_faults.iter().flatten() {
+            if !first {
+                write!(f, ",")?;
+            }
+            first = false;
+            match *w {
+                WireFault::StuckLow(i) => write!(
+                    f, "{{\"kind\":\"stuck_low\",\"line\":\"{}\"}}", CTL_NAMES[i as usize])?,
+                WireFault::StuckHigh(i) => write!(
+                    f, "{{\"kind\":\"stuck_high\",\"line\":\"{}\"}}", CTL_NAMES[i as usize])?,
+                WireFault::Short(a, b) => write!(
+                    f, "{{\"kind\":\"short\",\"line\":\"{}\",\"other\":\"{}\"}}",
+                    CTL_NAMES[a as usize], CTL_NAMES[b as usize])?,
+            }
+        }
+        write!(f, "],\"failure\":")?;
+        match &self.failure {
+            None => write!(f, "null")?,
+            Some(x) => write!(
+                f, "{{\"phase\":\"{}\",\"errors\":{},\"addr\":{},\"bits\":\"{:#012x}\",\"read\":\"{:#012x}\"}}",
+                x.phase.name(), x.errors, x.addr, x.bits, x.read)?,
+        }
+        write!(f, "}}")
+    }
+}

@@ -2,7 +2,7 @@
 
 # Fit the Wi-Fi module
 
-The module is optional. Without it the tester works over USB. No firmware uses the module yet.
+The module is optional. Without it the tester works from its front panel and over USB.
 
 ## Parts
 
@@ -11,14 +11,40 @@ The module is optional. Without it the tester works over USB. No firmware uses t
 | Seeed XIAO ESP32-C6 | 1 |
 | 1 x 7 pin header, 2.54 mm | 2 |
 
-## Steps
+## Load the firmware
 
-1. Hold a XIAO against J8 on the back of the base board. The antenna end points to the rear edge and the USB-C end points to the front.
-2. Check that pin D0 sits on the square pad. The two rows are mirrored on the board because the module mounts on the back.
-3. Solder the two pin headers to the module.
-4. Solder the header pins to J8 from the top of the board.
-5. Put the board into the tray. The module sits in the opening in the tray floor.
-6. Check that the module does not stand below the tray floor. The module is about 6.7 mm tall on pin headers and the space is 7.4 mm.
+The firmware is in `wifi/`. It has not been compiled or run yet.
+
+1. Install PlatformIO.
+2. Build the page into the firmware.
+
+**Build the page**
+
+```sh
+python3 web/build.py
+```
+
+3. Connect the module to your computer with its own USB-C port.
+4. Build and load the firmware.
+
+**Build and load**
+
+```sh
+cd wifi
+pio run -t upload
+```
+
+The module opens a network named `RAMalyser-` and four characters when it has no network saved.
+
+## Solder the module
+
+1. Load the firmware into the module first. See the next section.
+2. Hold a XIAO against J8 on the back of the base board. The antenna end points to the rear edge and the USB-C end points to the front.
+3. Check that pin D0 sits on the square pad. The two rows are mirrored on the board because the module mounts on the back.
+4. Solder the two pin headers to the module.
+5. Solder the header pins to J8 from the top of the board.
+6. Put the board into the tray. The module sits in the opening in the tray floor.
+7. Check that the module does not stand below the tray floor. The module is about 6.7 mm tall on pin headers and the space is 7.4 mm.
 
 > [!WARNING]
 > **Measure before you solder**
@@ -27,5 +53,6 @@ The module is optional. Without it the tester works over USB. No firmware uses t
 
 **See also**
 
+- [Use the web interface](use-the-web-interface.md)
 - [Wi-Fi module connector](../reference/wifi-module.md)
 - [Build a unit](../start/build.md)

@@ -6,12 +6,16 @@
 //! follow the parts' datasheets; values marked "bench" need measuring.
 #![no_std]
 
+#[cfg(feature = "host")]
+extern crate std;
+
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{InputPin, OutputPin};
 use embedded_hal::i2c::I2c;
 use embedded_hal::spi::{Operation, SpiDevice};
 use rt_core::Platform;
 
+pub mod display;
 pub mod ecp5;
 
 const DAC_ADDR: u8 = 0x60; // MCP4725A0, A0 low

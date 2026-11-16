@@ -13,7 +13,7 @@ J8 takes a Seeed XIAO module. Every XIAO has the same footprint. The ESP32-C6 is
 | GPIO2 | `WIFI_IO0` | D0 |
 | GPIO3 | `WIFI_IO1` | D1 |
 
-D2 to D5 and D8 to D10 are not connected.
+D2 to D5 and D8 to D10 are not connected. The link runs at 115200 baud. [Web interface and module API](web-api.md#serial-link) has the protocol.
 
 ## Supply
 

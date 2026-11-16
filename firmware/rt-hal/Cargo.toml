@@ -8,3 +8,11 @@ description = "RAMalyser base board drivers on embedded-hal traits (chip indepen
 [dependencies]
 rt-core = { path = "../rt-core" }
 embedded-hal = "1"
+
+[features]
+default = []
+host = ["rt-core/sim"]     # in-memory display and screen previews on a PC
+
+[[example]]
+name = "lcd_preview"
+required-features = ["host"]

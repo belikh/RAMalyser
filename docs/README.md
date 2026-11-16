@@ -16,7 +16,8 @@ A [Base unit](reference/glossary.md#term-base-unit) holds the processor, the [Ti
 | You want to | Read |
 | --- | --- |
 | Test a memory module | [Test a module](guides/test-a-module.md) |
-| Look up a command or a message | [Console commands](reference/console.md) |
+| Test from a browser | [Use the web interface](guides/use-the-web-interface.md) |
+| Look up a screen, a key or a message | [Front panel](reference/front-panel.md) and [Console commands](reference/console.md) |
 | Order the boards, print the case and put a unit together | [Build a unit](start/build.md) |
 | Power a new unit for the first time | [Bring up a new unit](guides/bring-up.md) |
 | Add Wi-Fi | [Fit the Wi-Fi module](guides/fit-wifi-module.md) |
