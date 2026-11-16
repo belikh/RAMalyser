@@ -1,3 +1,0 @@
-first passing strobe tick=30  measured tRAC=61.0 ns  model=60.0 ns
-PASS: speed within one tick
-tb_core.v:204: $finish called at 1368400000 (1ps)

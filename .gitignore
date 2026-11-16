@@ -9,3 +9,7 @@
 # design-system assets are fetched at build time, never committed
 /enclosure/.design/
 /enclosure/out/preview.*
+# documentation generator checkout and its site output
+/dist/
+/.jupiter-docs/
+/gateware/sim/build/

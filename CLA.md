@@ -16,6 +16,6 @@ else) to this project you agree that:
 
 Do not submit anything copied from another maker's firmware, manuals or other
 third-party material, or from projects under share-alike licences
-(CC BY-SA, CERN-OHL-S, GPL): see `docs/clean-room.md`.
+(CC BY-SA, CERN-OHL-S, GPL): see `docs/concepts/clean-room.md`.
 
 State your agreement in the pull request ("I agree to the CLA").

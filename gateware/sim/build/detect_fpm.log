@@ -1,3 +1,0 @@
-sample2=ff (EDO=0)
-PASS: mode detected
-tb_core.v:204: $finish called at 160400000 (1ps)

@@ -14,7 +14,7 @@
 
 RAMalyser tests the memory used in machines of the 1970s to 1990s. It is a new design built from current parts.
 
-`Memory types`_ · `Contents`_ · `Build and check`_ · `Licence`_
+`Documentation`_ · `Memory types`_ · `Contents`_ · `Build and check`_ · `Licence`_
 
 .. raw:: html
 
@@ -22,7 +22,7 @@ RAMalyser tests the memory used in machines of the 1970s to 1990s. It is a new d
      <tr align="left"><th>Warning</th></tr>
      <tr><td>
 
-Revision A has never been built. The boards pass electrical and design-rule checks and the logic passes in simulation. No hardware exists and nothing has been measured. Read `docs/bring-up.md <docs/bring-up.md>`_ before you order anything.
+Revision A has never been built. The boards pass electrical and design-rule checks and the logic passes in simulation. No hardware exists and nothing has been measured. Read `Bring up a new unit <docs/guides/bring-up.md>`_ before you order anything.
 
 .. raw:: html
 
@@ -34,6 +34,30 @@ Revision A has never been built. The boards pass electrical and design-rule chec
 .. raw:: html
 
    <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/belikh/design/latest/packages/github/graphics/rule/end-dark.svg"><img alt="" src="https://raw.githubusercontent.com/belikh/design/latest/packages/github/graphics/rule/end-light.svg" width="50%"></picture></p>
+
+|
+
+Documentation
+-------------
+
+The guides and references are at `docs.jupiter.au/ramalyser <https://docs.jupiter.au/ramalyser/>`_ and, as plain Markdown, in `docs/ <docs/README.md>`_.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Page
+     - Contents
+   * - `Build a unit <docs/start/build.md>`_
+     - Boards, fabrication limits, hand-fitted parts, enclosure and assembly
+   * - `Bring up a new unit <docs/guides/bring-up.md>`_
+     - The checks to make before any memory goes into a socket
+   * - `Supported memory <docs/reference/memory.md>`_
+     - Modules and chips, and what a test reports
+   * - `Cartridge bus <docs/reference/bus.md>`_
+     - The 164-contact connector and the rules for a cartridge
+   * - `Architecture <docs/concepts/architecture.md>`_
+     - The timing engine, the cartridges, power and firmware
 
 |
 
@@ -101,7 +125,7 @@ Contents
    * - |topology-l| |topology-d| ``hardware/schematics/``
      - Schematic PDFs of the base unit and the cartridges
    * - |book-l| |book-d| ``docs/``
-     - Architecture, assembly, bring-up checklist and clean-room record
+     - Generated documentation. The source is ``docs-src/``
 
 PCB layouts and fabrication files are not published.
 
